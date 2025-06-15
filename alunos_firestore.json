@@ -1,0 +1,1382 @@
+[
+  {
+    "matricula": 10720250106,
+    "nome": "ALEXANDRE ROMÃO BASSUMA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230186,
+    "nome": "ANA LUIZA DAL BEN BENTO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160004,
+    "nome": "ARTHUR DE ALMEIDA CINALLI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160099,
+    "nome": "BEATRIZ GAMA SANTOS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160122,
+    "nome": "BEATRIZ SCHEIDT ALBUQUERQUE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250154,
+    "nome": "CAIO MARQUES DEMORO DE SOUZA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210078,
+    "nome": "DANIELE OLIVEIRA RODRIGUES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220140,
+    "nome": "DAVI BLOISI SIMÕES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720180266,
+    "nome": "GABRIEL MARCELLY GIUSTI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720150152,
+    "nome": "GIOVANNA MARQUES COLOMBO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220100,
+    "nome": "GUILHERME COSTA CARVALHO RAY",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250170,
+    "nome": "GUILHERME MAZO GALVÃO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220260,
+    "nome": "HADASSA DA SILVA SOBRAL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210100,
+    "nome": "HENRIQUE SANTI PELLEGRINI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240226,
+    "nome": "ISABELLY GOMES DA SILVA RODRIGUES     ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160081,
+    "nome": "JOÃO SAVEGNAGO DA SILVA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720200228,
+    "nome": "JOSE AFONSO PINTO NETO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230216,
+    "nome": "KEVYN ALLEF DE LIMA GOMES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220024,
+    "nome": "LAURA BEATRIZ GIOIELLI BOCHETTI SCHOUERI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720150110,
+    "nome": "LAURA ESCAÑUELA GEBAILE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250150,
+    "nome": "MARIA CAROLINA ANDERLINI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210077,
+    "nome": "MARIA CLARA OLIVEIRA RODRIGUES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130238,
+    "nome": "MARIA EDUARDA MODESTO DE CASTRO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160102,
+    "nome": "MARIA EDUARDA SILVA GONÇALVES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720150219,
+    "nome": "MARIA LUISA FRANCISCHINI PECHT",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240174,
+    "nome": "MATHEUS ALMEIDA GOMES BUENO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220093,
+    "nome": "MIGUEL KAGE MOYA            ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160201,
+    "nome": "NICHOLAS MENESES FERREIRA RODRIGUES       ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250263,
+    "nome": "STELLA BRASOLIN MASI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250266,
+    "nome": "VANESSA LOMBARDI DE MELLO CASTRIANNI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250272,
+    "nome": "VICTOR HIRATA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160023,
+    "nome": "VITOR NAKAO ISHII",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250097,
+    "nome": "ISABELA BELLATO DE GRANDIS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220139,
+    "nome": " ANIA PIKEL SVIATOPOLK MIRSKY",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160105,
+    "nome": " BEATRIZ DEZOTI DA FONSECA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210022,
+    "nome": " BRUNA MORAES STEINER",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160012,
+    "nome": " CAROLINA PINHEIRO SANTANIELLO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160107,
+    "nome": " DAVI SCABBIA CUSTODIO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210243,
+    "nome": " ENRICO MORDENTTI DE MENEZES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720150203,
+    "nome": " GABRIEL CESTARI MANSUR    ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720120104,
+    "nome": " GABRIEL LANDIM SUYAMA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720200181,
+    "nome": " GABRIEL LORENZO ALVES POLESEL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250066,
+    "nome": " GABRIELA CARRILLO JUNQUEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230175,
+    "nome": " GIOVANNA BEATRIZ CAVALLO PROCIDA      ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160002,
+    "nome": " GUILHERME BOTELHO FURINI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160008,
+    "nome": " IRIS BOMBANA MOTTA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720200216,
+    "nome": " JOÃO GABRIEL LONGHI MOTA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160067,
+    "nome": " JOÃO PEDRO DE ANDRADE STENZEL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720120162,
+    "nome": " JOÃO VITOR ALVARENGA BARRETO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130198,
+    "nome": " JOÃO VITOR MANGANIELLO RODRIGUES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210196,
+    "nome": " JULIA BERNARDI DE CASTRO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720170118,
+    "nome": " JULIA POLLINI GRAVINA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250135,
+    "nome": " MARIANA RAMOS DE ARAUJO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160061,
+    "nome": " MATHEUS BOTELHO HASE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160024,
+    "nome": " NATHÁLIA RIBEIRO ABUFARES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720200149,
+    "nome": " NATHALIA TAMPELLI GUERMANDI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130196,
+    "nome": " PAULO VITOR DE ANDRADE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160006,
+    "nome": " SOFIA FREDERICO LAPORTA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250139,
+    "nome": " SOFIA SEI BRANDÃO MARTINS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720120008,
+    "nome": " SOPHIA DE PAULO AIRES DE LIMA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160001,
+    "nome": " VICENTE FERREIRA VAZ DE OLIVEIRA          ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210108,
+    "nome": " VITOR KEN BUOSO WATANABLE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250205,
+    "nome": " VIVIAN RODRIGUES PARREIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720150200,
+    "nome": " AISSA MORALES ADAM",
+    "serie": 1
+  },
+  {
+    "matricula": 10720170197,
+    "nome": " ANNA LUIZA SIQUEIRA RODRIGUES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130022,
+    "nome": " ARTHUR DE ALMEIDA PEGORELLI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160147,
+    "nome": " ARTUR AVELINO DA SILVA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250131,
+    "nome": " BARBARA BERGA CANDANÇAN",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250064,
+    "nome": " BEATRIZ PRECETTI ESTEVES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160270,
+    "nome": " CAIO KAIRALLA DRAGONE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240109,
+    "nome": " ENZO ZANCHETTA FRAGALI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250055,
+    "nome": " FELIPE CALDO SANCHEZ",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220124,
+    "nome": " FELIPE HEINRICH SPINA ABIB MATOS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210197,
+    "nome": " GABRIEL BERNARDI DE CASTRO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160026,
+    "nome": " GABRIEL COLEN FILANTE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240026,
+    "nome": " GUSTAVO GEROMINI DE MELLO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160148,
+    "nome": " IAGO GARCIA OLIVEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160075,
+    "nome": " JULIA MENDES PAVLOVSKY",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250130,
+    "nome": " LARA MATTHES PATARA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210185,
+    "nome": " LARA PONTES FARATH",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160045,
+    "nome": " LAURA PEPELIASCOV",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230306,
+    "nome": " LUANA MUSSOLINO PORFIRIO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240140,
+    "nome": " LUCA FRANCO CARVALHO TEIXEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210098,
+    "nome": " LUCAS SANTI PELLEGRINI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230023,
+    "nome": " MANUELA CARUSO SATYRO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720200041,
+    "nome": " MANUELA FARAH PINTO RIBEIRO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160098,
+    "nome": " MARIA EDUARDA ARAUJO DE OLIVEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130150,
+    "nome": " MURILO BRAGA COSTA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160015,
+    "nome": " PEDRO GOLDENBERG AOKI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220187,
+    "nome": " RAFAEL FIGUEIREDO BARUFFALDI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220210,
+    "nome": " RAFAEL GIMENEZ CHAIA MACUL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720210037,
+    "nome": " RAFAELLA MENEGHEL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240099,
+    "nome": " VALENTINA AYELEN OVIEDO CASAGRANDE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240113,
+    "nome": " JUAN FRANCISCO SARRATUD AGUIAR",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160044,
+    "nome": " LIZ PEPELIASCOV",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240040,
+    "nome": " HENRIQUE FARIAS RODRIGUES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220104,
+    "nome": " ARTHUR LINARES ARMELIN",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130047,
+    "nome": " BEATRIZ BORSARI OLIVEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720190051,
+    "nome": " EDUARDO BARTOLINI TAMBARA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220174,
+    "nome": " ENZO INFORSATO MIRANDA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130113,
+    "nome": " FELIPE REIS TEIXEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160003,
+    "nome": " GUILHERME ALFACE DUBOIS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720180171,
+    "nome": " LEONARDO FERRAZ DO AMARAL",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160060,
+    "nome": " MANOELA MORENO NOBRE",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250105,
+    "nome": " MANUELA ROSANTE RAYHEL MONTALDI MORALES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250157,
+    "nome": " MARCELLA VIZONI BARROS",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250158,
+    "nome": " MARIA LUIZA SILVA ASSAD SANTANA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720250061,
+    "nome": " MARIANA FONSECA LAZARINI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160005,
+    "nome": " RAFAEL FREDERICO LAPORTA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720130145,
+    "nome": " RAFAELLA VERPA ERNANDES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230055,
+    "nome": " SOFIA DE ARAUJO MOREIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160034,
+    "nome": " VALENTINA ARAUJO FORTES",
+    "serie": 1
+  },
+  {
+    "matricula": 10720230045,
+    "nome": " VINICIUS GONÇALEZ DE ALMEIDA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160020,
+    "nome": " VINICIUS NEGRI SANDO DE OLIVEIRA",
+    "serie": 1
+  },
+  {
+    "matricula": 10720240205,
+    "nome": " CAUÃ PRÓSPERO SAMPAIO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720160018,
+    "nome": " LUIZA SIMARA RUFINO",
+    "serie": 1
+  },
+  {
+    "matricula": 10720180132,
+    "nome": " JÚLIA CIONGOLI MANZIONI",
+    "serie": 1
+  },
+  {
+    "matricula": 10720220150,
+    "nome": "ANA CLARA DE TOLEDO CALIL",
+    "serie": 2
+  },
+  {
+    "matricula": 10720110206,
+    "nome": "ANA SOFIA SUSUKI SCHLIEMANN",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220212,
+    "nome": "ANDRE BUSSO CARDOZO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200125,
+    "nome": "ARTHUR DE ALMEIDA BLANC BARROS LIMA SANTOS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230078,
+    "nome": "CAIO CESAR LOPES DE OLIVEIRA GOMES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120163,
+    "nome": "ENZO FARINA CORTEZ DE NAPOLI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150006,
+    "nome": "FÁBIO BATISTA BENTO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220229,
+    "nome": "FELIPE MANENTE DE CARVALHO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720170048,
+    "nome": "GABRIELA DO SION DE OLIVEIRA RAMOS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720210051,
+    "nome": "GIOVANNA MARTINS RODRIGUES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220246,
+    "nome": "GUILHERME BOCCHIGLIERI FARAH",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130246,
+    "nome": "GUILHERME SANTANA HAUSSMANN ZAGO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720190192,
+    "nome": "GUSTAVO GABRIEL RODRIGUES DE ARAUJO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720180029,
+    "nome": "HELENA CECÍLIA MENINI VEIGA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720180097,
+    "nome": "HELOÍSA MONZU D'ALMEIDA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120173,
+    "nome": "HELOÍSA VASQUES BALARIN",
+    "serie": 2
+  },
+  {
+    "matricula": 10720170086,
+    "nome": "HIRO SILVEIRA TUKIYAMA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120028,
+    "nome": "JÚLIA AYUMI BATISTA TSUJI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720210073,
+    "nome": "LARA MOLINARI BATISTA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720190196,
+    "nome": "LUCAS FERNANDES ERN",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130024,
+    "nome": "LUIZA TEIXEIRA FRANGELLA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720210173,
+    "nome": "MANUELA MELLONI TOLEDO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240155,
+    "nome": "MARCOS JOSÉ MÁSCARA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240273,
+    "nome": "MARIA EDUARDA FARNESI CERQUEIRA DE NEIVA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720160111,
+    "nome": "MARIANA VENTURINI SOUZA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150009,
+    "nome": "PIETRO MARTINS GARDESANI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200219,
+    "nome": "RAFAEL ISMAEL DRIGO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230057,
+    "nome": "SAMUEL KAKITANI RAMOS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720170192,
+    "nome": "SOPHIA MONTEIRO MASSONI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720190017,
+    "nome": "TIAGO QUIRINO GIRALDI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130245,
+    "nome": "VICTOR SANTANA HAUSSMANN ZAGO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720140205,
+    "nome": "MATTEO FERREIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250144,
+    "nome": "GABRIELA DUARTE DE ALBUQUERQUE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150018,
+    "nome": "ANA LUIZA BARBOSA DE ARAUJO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200083,
+    "nome": "BEATRIZ KLIEMANN AMARAL",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230144,
+    "nome": "BEATRIZ OLIVEIRA BALDIBIA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120018,
+    "nome": "CAROLINA VIEIRA VIDOTO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120091,
+    "nome": "DAVI FERNANDES NORBERTO DE OLIVEIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150179,
+    "nome": "ENZO PERON",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220215,
+    "nome": "FELIPE MUSOLINO MAXIMO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720180075,
+    "nome": "FELIPE ROSANOVA FACCIN",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220217,
+    "nome": "GABRIEL SANTOS DE ANDRADE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240188,
+    "nome": "GEOVANA FORTUNATO RODRIGUES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120003,
+    "nome": "HENZO DO NASCIMENTO COSTA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720180254,
+    "nome": "HUMBERTO MAURO NAKASU DE SOUZA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200140,
+    "nome": "JOÃO GUILHERME BOCCIA DANTAS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240208,
+    "nome": "LARA RANGEL LOPES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150042,
+    "nome": "LEONARDO DE OLIVEIRA RUIZ MAGDALENA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150004,
+    "nome": "LEONARDO MENDES CRISTINI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240114,
+    "nome": "LÍVIA HOLANDA XIMENES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200193,
+    "nome": "LORENA LUNI CALVO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240191,
+    "nome": "LORENA MARINHO COCATI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240182,
+    "nome": "LUCA PARISI CURCI FUIM",
+    "serie": 2
+  },
+  {
+    "matricula": 10720190100,
+    "nome": "LUCAS FERRAREZZI CAMPOS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240037,
+    "nome": "MARIANA SALMAZO CARMELLO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250053,
+    "nome": "MARINA AURICCHIO TEIXEIRA RODRIGUES BASTOS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720160257,
+    "nome": "MATHEUS MARTTOS OPERMAN",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250218,
+    "nome": "PAOLLA MENDES SOUSA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150041,
+    "nome": "PIETRA TEIXEIRA MONTEIRO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150025,
+    "nome": "RAFAEL LUNA TORRES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150029,
+    "nome": "SOFIA XAVIER ROSA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150154,
+    "nome": "THOMAZ RUIZ SALES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220096,
+    "nome": "VINICIUS DE FREITAS MOREIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240145,
+    "nome": "MANUELLA SANTOS PROIETTI DE MORAES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220191,
+    "nome": "ALLAN KENZO DOTOLI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240066,
+    "nome": "ANA BEATRIZ AGUERA SENA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220009,
+    "nome": "DEREK SCHIESARI MILANI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200065,
+    "nome": "ENZO JINNO SOARES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220038,
+    "nome": "GABRIEL FERNANDES DE CARVALHO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150138,
+    "nome": "GABRIEL RICARTE MENDONÇA EVANGELISTA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240274,
+    "nome": "GABRIELA FARNESI CERQUEIRA DE NEIVA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720110097,
+    "nome": "HENRIQUE ANTACLE TROMBELI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230047,
+    "nome": "JOÃO PAULO MILEO VICENTE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130190,
+    "nome": "JOÃO PEDRO ZARDO DO NASCIMENTO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720200093,
+    "nome": "JULIA ARANDA MALTEZ",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230062,
+    "nome": "KIARA MARTINS TAKAHASI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720230069,
+    "nome": "LARISSA DESIRÉE BARBOSA MENDES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240216,
+    "nome": "LETÍCIA SANTOS CARVALHO",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220160,
+    "nome": "LUCAS FACHINI BESSA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130170,
+    "nome": "LUIZA CARVALHO ALBUQUERQUE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250221,
+    "nome": "MARIA EDUARDA MANENTE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720210224,
+    "nome": "MATEUS GALVEZ MOROZ",
+    "serie": 2
+  },
+  {
+    "matricula": 10720130114,
+    "nome": "MATHEUS GODOY GOBBY",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150106,
+    "nome": "MELISSA DUARTE LI",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240052,
+    "nome": "NATÁLIA AMARAL DE MEDEIROS",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250129,
+    "nome": "OLIVIA COMPANY SCHIAVON",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150143,
+    "nome": "OTÁVIO BONATO PASSERINE",
+    "serie": 2
+  },
+  {
+    "matricula": 10720150161,
+    "nome": "PEDRO QUINALHA QUEIROZ",
+    "serie": 2
+  },
+  {
+    "matricula": 10720120025,
+    "nome": "PEDRO VITOR VASCONCELOS BALDASIN VILA MARIM",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240092,
+    "nome": "PIETRA GRAVE OLIVEIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240292,
+    "nome": "RAPHAEL BARRANQUEIRO PEREIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720210103,
+    "nome": "RODRIGO COELHO PILON",
+    "serie": 2
+  },
+  {
+    "matricula": 10720240177,
+    "nome": "SOPHIA ROSA GONÇALVES",
+    "serie": 2
+  },
+  {
+    "matricula": 10720250225,
+    "nome": "SUMAYA CHAIB FALAVIGNA VIEIRA",
+    "serie": 2
+  },
+  {
+    "matricula": 10720220189,
+    "nome": "ANA LUISA OLIVEIRA CUNHA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200123,
+    "nome": "ANA LUIZA RODRIGUES CHAHINE",
+    "serie": 3
+  },
+  {
+    "matricula": 10720160189,
+    "nome": "BEATRIZ BOSIO VEIGA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240289,
+    "nome": "BEATRIZ FERREIRA KAUPA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720140024,
+    "nome": "BIANCA PAROLI COUTINHO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720190042,
+    "nome": "CAIO BARIANI LOURENÇO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720120029,
+    "nome": "CAIO LIMA TEIXEIRA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720130045,
+    "nome": "CAROLINA MENEZES PELLEGRINO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240025,
+    "nome": "DANILO GEROMINI DE MELLO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720220019,
+    "nome": "EDUARDA SECILIANO ANTUNES",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230210,
+    "nome": "FERNANDA DE LIMA SANTOS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720170126,
+    "nome": "GABRIELA DOS SANTOS RUSTOM",
+    "serie": 3
+  },
+  {
+    "matricula": 10720140217,
+    "nome": "GEOVANA FERREIRA BESSA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200287,
+    "nome": "GIOVANA HELENA WILICZINSKI ROSSETTI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720120060,
+    "nome": "GUILHERME RALUY MARQUES",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230064,
+    "nome": "HENRY MARTINS TAKAHASI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180006,
+    "nome": "ISABELA ANGELINO ZAZERI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720210019,
+    "nome": "JOÃO GABRIEL ALVES PEREIRA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720120027,
+    "nome": "LUÍSA CORDERO DOS SANTOS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240291,
+    "nome": "LUIZA VARELA GALDI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720160239,
+    "nome": "MANUELLA ROCHA DE LORENZI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200069,
+    "nome": "MARIA EDUARDA KOGACHI MIOSSO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240112,
+    "nome": "MARIA VICTORIA SARRATUD AGUIAR",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180232,
+    "nome": "PEDRO HENRIQUE FONSECA FREITAS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720110217,
+    "nome": "RACHEL DE CARVALHO ALMEIDA ROSSI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230160,
+    "nome": "RAPHAEL MARTINEZ MARQUES",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180202,
+    "nome": "SARAH SAYURI HATTANO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200167,
+    "nome": "SOFIA BIZIGATTI DOS REIS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180023,
+    "nome": "SOFIA MATEUS CARRAL",
+    "serie": 3
+  },
+  {
+    "matricula": 10720150056,
+    "nome": "YASMIN MACHADO LOPES DA COSTA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720250273,
+    "nome": "OLIVIA GUARIERO BASCHENIS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720220163,
+    "nome": "GABRIELLA MAXIMO DOS SANTOS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720110072,
+    "nome": "ANA LUIZA CRISTO MARTINS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720120088,
+    "nome": "ANNA JÚLIA ALBUQUERQUE ROMANO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230208,
+    "nome": "ANY CAROLINY CAMARGO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720130143,
+    "nome": "ARTHUR BOIGUES PRATES QUEROZ",
+    "serie": 3
+  },
+  {
+    "matricula": 10720210067,
+    "nome": "CARLA PASCUCCI SERRA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720210132,
+    "nome": "EDUARDO SGUILARO HARA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230087,
+    "nome": "ELORA FONSÊCA CAFÊU",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240185,
+    "nome": "GABRIEL CHAGAS SALOMÃO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720140115,
+    "nome": "GIOVANA MITAKI LESTER",
+    "serie": 3
+  },
+  {
+    "matricula": 10720170096,
+    "nome": "GIOVANNA GAGGINI STOILOV",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230209,
+    "nome": "GRAZIELA TAVARES PAZ",
+    "serie": 3
+  },
+  {
+    "matricula": 10720100085,
+    "nome": "HELENA FERREIRA TRINDADE",
+    "serie": 3
+  },
+  {
+    "matricula": 10720230162,
+    "nome": "ISABELLA TOMMASI",
+    "serie": 3
+  },
+  {
+    "matricula": 10720140243,
+    "nome": "JOÃO VITOR DANTAS DE FARIAS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200161,
+    "nome": "JÚLIA TIERI DE CAMPOS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720190125,
+    "nome": "LARISSA DE TOLEDO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720160103,
+    "nome": "LAURA VIEIRA AZEVEDO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720110130,
+    "nome": "LUCAS CHAIA MACUL",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200281,
+    "nome": "MANUELA CAMELO FERRAZ BONFIM",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180120,
+    "nome": "MARCELO ZHANG",
+    "serie": 3
+  },
+  {
+    "matricula": 10720180063,
+    "nome": "MARIA CLARA DE MARTIN CAMARGO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720190215,
+    "nome": "MARIA EDUARDA SIMONE TORRES MORGADO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240207,
+    "nome": "MICHELE CHEN",
+    "serie": 3
+  },
+  {
+    "matricula": 10720170022,
+    "nome": "NATÁLIA MADRIGALI PASCHOAL",
+    "serie": 3
+  },
+  {
+    "matricula": 10720130021,
+    "nome": "NICOLAS FENALTI YAMAOKA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720220013,
+    "nome": "NICOLLE CRUZ BEZERRA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720130146,
+    "nome": "PEDRO HENRIQUE PORTO GARCIA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720130085,
+    "nome": "PEDRO PAULO DIAS DOS SANTOS",
+    "serie": 3
+  },
+  {
+    "matricula": 10720200269,
+    "nome": "RAFAEL STEMPFER LEAL",
+    "serie": 3
+  },
+  {
+    "matricula": 10720120193,
+    "nome": "SAMIRAH PINOTTI DERANIAN",
+    "serie": 3
+  },
+  {
+    "matricula": 10720150055,
+    "nome": "SAMUEL DA SILVA RIBA",
+    "serie": 3
+  },
+  {
+    "matricula": 10720240215,
+    "nome": "SOPHIA FONSECA CASTELO BRANCO",
+    "serie": 3
+  },
+  {
+    "matricula": 10720150140,
+    "nome": "HELLEN VERISSIMO RAMOS",
+    "serie": 3
+  }
+]
