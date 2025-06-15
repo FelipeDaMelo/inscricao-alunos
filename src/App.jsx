@@ -24,6 +24,8 @@ const App = () => {
   const [carregandoVagas, setCarregandoVagas] = useState(true);
   const botaoRef = useRef(null);
 
+    const isTerceiraSerie = turma.startsWith('3');
+
   const disciplinasPorTurma = {
     '1A': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program', nome: 'Inglês: Personal Development' } ],
     '1B': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program', nome: 'Inglês: Personal Development' } ],
@@ -113,8 +115,6 @@ const handleSubmit = async (e) => {
   setErro(false);
   setMensagem('');
 
-  const isTerceiraSerie = turma.startsWith('3');
-
   if (!nomeCompleto || !turma || (isTerceiraSerie ? (!disciplinaTerca || !disciplinaQuinta) : !disciplina)) {
     setErro(true);
     setMensagem('Por favor, preencha todos os campos.');
@@ -186,8 +186,6 @@ const handleSubmit = async (e) => {
   }
 };
 
-
-  const isTerceiraSerie = turma.startsWith('3');
 
   function renderOption(disc) {
     const vagasOcupadas = contagemVagas[disc.id] || 0;
