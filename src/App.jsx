@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from './firebase';
 import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction } from 'firebase/firestore';
 import logo from './logo-marista.png';
@@ -22,6 +22,7 @@ const App = () => {
   const [processando, setProcessando] = useState(false);
   const [contagemVagas, setContagemVagas] = useState({});
   const [carregandoVagas, setCarregandoVagas] = useState(true);
+  const botaoRef = useRef(null);
 
   const disciplinasPorTurma = {
     '1A': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program', nome: 'Inglês: Personal Development' } ],
@@ -92,59 +93,99 @@ const App = () => {
     }
   }, [screen]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (processando) return;
-    setProcessando(true);
+useEffect(() => {
+  // Rola a tela para o botão de envio sempre que uma disciplina é selecionada
+  const algumaDisciplinaSelecionada = 
+    (!isTerceiraSerie && disciplina) || 
+    (isTerceiraSerie && (disciplinaTerca || disciplinaQuinta));
+
+  if (algumaDisciplinaSelecionada) {
+    setTimeout(() => {
+      botaoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+}, [disciplina, disciplinaTerca, disciplinaQuinta, isTerceiraSerie]); // Depende de todas as variáveis de disciplina
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (processando) return;
+  setProcessando(true);
+  setErro(false);
+  setMensagem('');
+
+  const isTerceiraSerie = turma.startsWith('3');
+
+  if (!nomeCompleto || !turma || (isTerceiraSerie ? (!disciplinaTerca || !disciplinaQuinta) : !disciplina)) {
+    setErro(true);
+    setMensagem('Por favor, preencha todos os campos.');
+    setProcessando(false);
+    return;
+  }
+
+  // ✅ NOVA VALIDAÇÃO DO NOME
+  const normalizar = (str) => str.normalize("NFD").replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+  if (normalizar(nomeCompleto) !== normalizar(welcomeName)) {
+    setErro(true);
+    setMensagem('O nome confirmado não coincide com o nome cadastrado. Verifique a grafia.');
+    setProcessando(false);
+    return;
+  }
+
+  try {
+    await runTransaction(db, async (transaction) => {
+      const contadorRef = doc(db, 'estatisticas', 'vagas');
+      const contadorDoc = await transaction.get(contadorRef);
+      if (!contadorDoc.exists()) throw new Error("Erro no servidor: o contador de vagas não foi encontrado.");
+
+      const dadosContador = contadorDoc.data();
+      let novosDadosInscricao = {
+        nome: nomeCompleto,
+        turma,
+        matricula: matriculaValidada,
+        timestamp: serverTimestamp()
+      };
+      let atualizacoesContador = {};
+
+      if (isTerceiraSerie) {
+        const vagasTerca = dadosContador[disciplinaTerca] || 0;
+        const vagasQuinta = dadosContador[disciplinaQuinta] || 0;
+
+        if (vagasTerca >= VAGAS_LIMITE) throw new Error(`Vagas esgotadas para a opção de Terça-feira.`);
+        if (vagasQuinta >= VAGAS_LIMITE) throw new Error(`Vagas esgotadas para a opção de Quinta-feira.`);
+
+        atualizacoesContador[disciplinaTerca] = vagasTerca + 1;
+        atualizacoesContador[disciplinaQuinta] = vagasQuinta + 1;
+
+        novosDadosInscricao.disciplina_terca = (disciplinasPorTurma[turma].terca.find(d => d.id === disciplinaTerca))?.nome;
+        novosDadosInscricao.disciplina_quinta = (disciplinasPorTurma[turma].quinta.find(d => d.id === disciplinaQuinta))?.nome;
+        novosDadosInscricao.disciplina_terca_id = disciplinaTerca;
+        novosDadosInscricao.disciplina_quinta_id = disciplinaQuinta;
+      } else {
+        const vagasUnica = dadosContador[disciplina] || 0;
+        const nomeBonito = (disciplinasPorTurma[turma].find(d => d.id === disciplina))?.nome || disciplina;
+
+        if (vagasUnica >= VAGAS_LIMITE) throw new Error(`As vagas para a disciplina "${nomeBonito}" já estão esgotadas.`);
+
+        atualizacoesContador[disciplina] = vagasUnica + 1;
+        novosDadosInscricao.disciplina = nomeBonito;
+        novosDadosInscricao.disciplina_id = disciplina;
+      }
+
+      transaction.update(contadorRef, atualizacoesContador);
+      const novaInscricaoRef = doc(collection(db, 'inscricoes'));
+      transaction.set(novaInscricaoRef, novosDadosInscricao);
+    });
+
+    setMensagem('Inscrição realizada com sucesso! Você já pode fechar esta página.');
     setErro(false);
-    setMensagem('');
-    const isTerceiraSerie = turma.startsWith('3');
-    if (!nomeCompleto || !turma || (isTerceiraSerie ? (!disciplinaTerca || !disciplinaQuinta) : !disciplina)) {
-      setErro(true);
-      setMensagem('Por favor, preencha todos os campos.');
-      setProcessando(false);
-      return;
-    }
-    try {
-      await runTransaction(db, async (transaction) => {
-        const contadorRef = doc(db, 'estatisticas', 'vagas');
-        const contadorDoc = await transaction.get(contadorRef);
-        if (!contadorDoc.exists()) throw new Error("Erro no servidor: o contador de vagas não foi encontrado.");
-        const dadosContador = contadorDoc.data();
-        let novosDadosInscricao = { nome: nomeCompleto, turma, matricula: matriculaValidada, timestamp: serverTimestamp() };
-        let atualizacoesContador = {};
-        if (isTerceiraSerie) {
-          const vagasTerca = dadosContador[disciplinaTerca] || 0;
-          const vagasQuinta = dadosContador[disciplinaQuinta] || 0;
-          if (vagasTerca >= VAGAS_LIMITE) throw new Error(`Vagas esgotadas para a opção de Terça-feira.`);
-          if (vagasQuinta >= VAGAS_LIMITE) throw new Error(`Vagas esgotadas para a opção de Quinta-feira.`);
-          atualizacoesContador[disciplinaTerca] = vagasTerca + 1;
-          atualizacoesContador[disciplinaQuinta] = vagasQuinta + 1;
-          novosDadosInscricao.disciplina_terca = (disciplinasPorTurma[turma].terca.find(d => d.id === disciplinaTerca))?.nome;
-          novosDadosInscricao.disciplina_quinta = (disciplinasPorTurma[turma].quinta.find(d => d.id === disciplinaQuinta))?.nome;
-          novosDadosInscricao.disciplina_terca_id = disciplinaTerca;
-          novosDadosInscricao.disciplina_quinta_id = disciplinaQuinta;
-        } else {
-          const vagasUnica = dadosContador[disciplina] || 0;
-          const nomeBonito = (disciplinasPorTurma[turma].find(d => d.id === disciplina))?.nome || disciplina;
-          if (vagasUnica >= VAGAS_LIMITE) throw new Error(`As vagas para a disciplina "${nomeBonito}" já estão esgotadas.`);
-          atualizacoesContador[disciplina] = vagasUnica + 1;
-          novosDadosInscricao.disciplina = nomeBonito;
-          novosDadosInscricao.disciplina_id = disciplina;
-        }
-        transaction.update(contadorRef, atualizacoesContador);
-        const novaInscricaoRef = doc(collection(db, 'inscricoes'));
-        transaction.set(novaInscricaoRef, novosDadosInscricao);
-      });
-      setMensagem('Inscrição realizada com sucesso! Você já pode fechar esta página.');
-      setErro(false);
-    } catch (error) {
-      setErro(true);
-      setMensagem(error.message || 'Ocorreu um erro inesperado. Tente novamente.');
-    } finally {
-      setProcessando(false);
-    }
-  };
+  } catch (error) {
+    setErro(true);
+    setMensagem(error.message || 'Ocorreu um erro inesperado. Tente novamente.');
+  } finally {
+    setProcessando(false);
+  }
+};
+
 
   const isTerceiraSerie = turma.startsWith('3');
 
@@ -159,7 +200,7 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col pb-28">
       <div className="flex-grow flex flex-col items-center p-4 py-8">
         {screen === 'login' ? (
           <>
