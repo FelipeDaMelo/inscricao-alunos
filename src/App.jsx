@@ -14,6 +14,7 @@ const App = () => {
   const [welcomeName, setWelcomeName] = useState('');
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [turma, setTurma] = useState('');
+  const [userSerie, setUserSerie] = useState(null); // ✅ Novo estado para a série
   const [matriculaValidada, setMatriculaValidada] = useState('');
   const [disciplina, setDisciplina] = useState('');
   const [disciplinaTerca, setDisciplinaTerca] = useState('');
@@ -42,7 +43,7 @@ const App = () => {
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
 
-  const getLimiteAtual = () => LIMITES_POR_SERIE[turma.charAt(0)] || 35;
+  const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
   // --- LÓGICA ---
   const handleLogin = async (e) => {
@@ -58,8 +59,10 @@ const App = () => {
 
       const docSnap = await getDoc(doc(db, "matriculasValidas", matriculaLogin));
       if (docSnap.exists()) {
-        setWelcomeName(docSnap.data().nome);
+        const studentData = docSnap.data();
+        setWelcomeName(studentData.nome);
         setMatriculaValidada(matriculaLogin);
+        setUserSerie(studentData.serie.toString()); // ✅ Salva a série do aluno
         setScreen('form');
       } else throw new Error('Matrícula não encontrada no sistema.');
     } catch (err) { setLoginError(err.message); } 
@@ -105,7 +108,6 @@ const App = () => {
         let dados = { nome: nomeCompleto, turma, matricula: matriculaValidada, timestamp: serverTimestamp() };
         let updates = {};
 
-        // CORRIGIDO: de is3 para isTerceiraSerie
         if (isTerceiraSerie) {
           if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas em um dos horários.");
           updates[disciplinaTerca] = (vData[disciplinaTerca] || 0) + 1;
@@ -133,6 +135,11 @@ const App = () => {
     return <option key={disc.id} value={disc.id} disabled={full}>{disc.nome} {full ? '(Esgotado)' : `- ${lim - ocupadas} vagas restantes`}</option>;
   }
 
+  // ✅ Função para filtrar as turmas baseadas na série do aluno logado
+  const getTurmasFiltradas = () => {
+    return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
@@ -155,8 +162,8 @@ const App = () => {
                   <p><strong>Regras Gerais:</strong></p>
                   <ul className="list-none space-y-2">
                     <li>• Indique sua matrícula para validar o acesso.</li>
-                    <li>• As vagas são limitadas.</li>
-                    <li>• A escolha é <strong>definitiva</strong> e não poderá ser alterada.</li>
+                    <li>• As vagas são limitadas por série.</li>
+                    <li>• A escolha é <strong>definitiva</strong> após o envio.</li>
                   </ul>
                 </div>
               </div>
@@ -164,7 +171,7 @@ const App = () => {
 
             {/* Coluna de Login */}
             <div className="md:col-span-2 flex flex-col justify-center">
-              <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100 flex flex-col items-center">
+              <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100">
                 <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">Acesso</h2>
                 <p className="text-slate-500 mb-8 text-center">Digite sua matrícula para iniciar.</p>
                 <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
@@ -174,7 +181,7 @@ const App = () => {
                       type="tel" 
                       value={matriculaLogin} 
                       onChange={e => setMatriculaLogin(e.target.value)}
-                      placeholder="Digite sua matrícula"
+                      placeholder="Apenas números"
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                       required 
                     />
@@ -200,7 +207,7 @@ const App = () => {
             <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
         ) : (
           /* Tela do Formulário */
-          <div className="w-full max-w-3xl flex flex-col items-center">
+          <div className="w-full max-w-3xl">
             <header className="flex flex-col items-center mb-8">
               <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
               <div className="bg-white px-6 py-2 rounded-full shadow-sm border border-slate-100 flex items-center justify-center gap-3">
@@ -209,8 +216,8 @@ const App = () => {
               </div>
             </header>
 
-            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 w-full flex flex-col items-center">
-              <form onSubmit={handleSubmit} className="space-y-8 w-full flex flex-col items-center">
+            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100">
+              <form onSubmit={handleSubmit} className="space-y-8 flex flex-col items-center">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                   <div className="flex flex-col items-center">
                     <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Matrícula</label>
@@ -223,7 +230,7 @@ const App = () => {
                       value={nomeCompleto} 
                       onChange={e => setNomeCompleto(e.target.value)}
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Nome completo"
+                      placeholder="Nome exatamente como cadastrado"
                       required 
                     />
                   </div>
@@ -234,11 +241,12 @@ const App = () => {
                   <select 
                     value={turma} 
                     onChange={e => { setTurma(e.target.value); setDisciplina(''); setDisciplinaTerca(''); setDisciplinaQuinta(''); }}
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer appearance-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
                     required
                   >
                     <option value="">Selecione sua turma</option>
-                    {Object.keys(disciplinasPorTurma).map(t => <option key={t} value={t}>{t}</option>)}
+                    {/* ✅ FILTRAGEM APLICADA AQUI */}
+                    {getTurmasFiltradas().map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
 
@@ -254,14 +262,14 @@ const App = () => {
                         <div className="flex flex-col items-center">
                           <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Terça-feira</label>
                           <select value={disciplinaTerca} onChange={e => setDisciplinaTerca(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
-                            <option value="">Selecione...</option>
+                            <option value="">Escolha...</option>
                             {disciplinasPorTurma[turma]?.terca?.map(renderOption)}
                           </select>
                         </div>
                         <div className="flex flex-col items-center">
                           <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Quinta-feira</label>
                           <select value={disciplinaQuinta} onChange={e => setDisciplinaQuinta(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
-                            <option value="">Selecione...</option>
+                            <option value="">Escolha...</option>
                             {disciplinasPorTurma[turma]?.quinta?.map(renderOption)}
                           </select>
                         </div>
@@ -283,7 +291,7 @@ const App = () => {
                     className="w-full max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-300"
                   >
                     <Send size={22} />
-                    {processando ? 'Processando...' : 'Confirmar Inscrição'}
+                    {processando ? 'Confirmando...' : 'Finalizar Inscrição'}
                   </button>
                 </div>
               </form>
@@ -309,18 +317,25 @@ const App = () => {
 const SetupPage = ({ db, alunos, setScreen }) => {
   const [loading, setLoading] = useState(false);
   const run = async () => {
-    if (!window.confirm("ATENÇÃO: Isso resetará TODOS os dados. Continuar?")) return;
+    if (!window.confirm("ATENÇÃO: Isso resetará TODAS as matrículas e vagas. Continuar?")) return;
     setLoading(true);
     try {
-      for (const a of alunos) {
-        await setDoc(doc(db, "matriculasValidas", a.matricula.toString()), a);
-      }
-      await setDoc(doc(db, "estatisticas", "vagas"), {
+      const batch = writeBatch(db);
+      
+      alunos.forEach((a) => {
+        const ref = doc(db, "matriculasValidas", a.matricula.toString());
+        batch.set(ref, a);
+      });
+
+      const vagasRef = doc(db, "estatisticas", "vagas");
+      batch.set(vagasRef, {
         "Matemática Financeira_1EM": 0, "Ciências da Natureza_1EM": 0, "Ciências Humanas_1EM": 0, "Personal Development and Life Skills English Program_1EM": 0,
         "Aprendizagem interativa STEAM : Criação, desenvolvimento e automação": 0, "Ciências Humanas_2EM": 0, "Ciências da Natureza_2EM": 0, "Personal Development and Life Skills English Program_2EM": 0,
         "Ciências da Natureza_TER_3EM": 0, "Ciências Humanas_TER_3EM": 0, "Matemática_QUI_3EM": 0, "Linguagens_QUI_3EM": 0
       });
-      alert("Sucesso!");
+
+      await batch.commit();
+      alert("Sucesso! Banco configurado.");
       setScreen('login');
     } catch (e) { alert(e.message); } 
     finally { setLoading(false); }
@@ -331,7 +346,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
         <h1 className="text-4xl font-black mb-4 text-center">Painel de Setup</h1>
         <p className="text-slate-400 mb-8 text-sm text-center">Prepara o Firebase para o Ciclo 2026.</p>
         <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-10 rounded-3xl font-black text-2xl shadow-2xl transition-all disabled:opacity-50">
-          {loading ? "CONFIGURANDO..." : "🚀 EXECUTAR SETUP 2026"}
+          {loading ? "PROCESSANDO..." : "🚀 EXECUTAR SETUP 2026"}
         </button>
       </div>
     </div>
