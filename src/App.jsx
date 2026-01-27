@@ -57,11 +57,18 @@ const App = () => {
     '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
-
+/*
   const OPENING_CONFIG = {
   '3': "2026-01-29T20:00:00-03:00",
   '1': "2026-02-03T20:00:00-03:00",
   '2': "2026-02-03T20:00:00-03:00"
+};
+*/
+
+  const OPENING_CONFIG = {
+  '3': "2026-01-27T16:00:00-03:00",
+  '1': "2026-01-27T16:02:00-03:00",
+  '2': "2026-01-27T16:02:00-03:00"
 };
 
 const [times, setTimes] = useState({
@@ -239,8 +246,8 @@ useEffect(() => {
             {/* Coluna de Instruções */}
             <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
               <img src={logo} alt="Logo" className="mb-8 w-48 mx-auto" />
-              <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Optativa</h1>
-              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • Ciclo 2026 / 1</p>
+              <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Interdisciplinar Optativa</h1>
+              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • 2026 / 1</p>
               
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-xl w-full flex flex-col items-center">
                 <div className="flex items-center justify-center gap-2 text-blue-800 font-bold mb-4">
@@ -289,7 +296,7 @@ useEffect(() => {
 
     {/* Timer 1ª e 2ª Séries */}
     <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
-      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>1ª e 2ª Séries</p>
+      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Séries</p>
       {times.serie12.open ? (
         <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
       ) : (
