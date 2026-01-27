@@ -344,6 +344,12 @@ useEffect(() => {
   return () => clearInterval(timer);
 }, []);
 
+
+const getTurmasFiltradas = () => {
+  if (!userSerie) return []; // ✅ Se não tiver série, retorna lista vazia em vez de quebrar
+  return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
+};
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
