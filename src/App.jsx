@@ -144,7 +144,11 @@ const [times, setTimes] = useState({
         ];
 
         // Limita o nome da aba a 31 caracteres (regra do Excel) e remove caracteres proibidos
-        const nomeLimpo = nomeAba.substring(0, 31).replace(/[\\\/\?\*\[\]]/g, "");
+        const nomeLimpo = nomeAba
+.substring(0, 31)
+.replace(/[:\\\/\?\*\[\]]/g, "")
+.replace(/\s+/g, " ")
+.trim();
         XLSX.utils.book_append_sheet(workbook, worksheet, nomeLimpo);
       });
 
