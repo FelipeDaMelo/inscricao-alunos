@@ -1,4 +1,4 @@
-[
+export const ALUNOS_2026 = [
   { "matricula": 10720180043, "nome": "ANA CAROLINA MACEDO DA SILVEIRA", "serie": 1 },
   { "matricula": 10720200063, "nome": "ANA CLARA PINHEIRO MESQUITA", "serie": 1 },
   { "matricula": 10720150088, "nome": "ANA JÚLIA CARDOSO BITTENCOURT", "serie": 1 },
