@@ -59,18 +59,13 @@ const App = () => {
     '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
-/*
+
   const OPENING_CONFIG = {
   '3': "2026-01-29T20:00:00-03:00",
   '1': "2026-02-03T20:00:00-03:00",
   '2': "2026-02-03T20:00:00-03:00"
 };
-*/
-  const OPENING_CONFIG = {
-  '3': "2026-01-21T20:00:00-03:00",
-  '1': "2026-01-21T20:00:00-03:00",
-  '2': "2026-01-21T20:00:00-03:00"
-};
+
 
 
 const [times, setTimes] = useState({
