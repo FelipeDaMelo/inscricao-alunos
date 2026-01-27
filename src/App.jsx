@@ -29,9 +29,20 @@ const App = () => {
   const [chosenDiscName, setChosenDiscName] = useState('');
   const [chosenTercaName, setChosenTercaName] = useState('');
   const [chosenQuintaName, setChosenQuintaName] = useState('');
+  const [detectedSerie, setDetectedSerie] = useState(null);
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0, isOpen: false });
   const botaoRef = useRef(null);
   const isTerceiraSerie = turma.startsWith('3');
+
+  useEffect(() => {
+  if (matriculaLogin.length >= 6) {
+    const aluno = ALUNOS_2026.find(a => a.matricula.toString() === matriculaLogin);
+    if (aluno) setDetectedSerie(aluno.serie.toString());
+    else setDetectedSerie(null);
+  } else {
+    setDetectedSerie(null);
+  }
+}, [matriculaLogin]);
 
   // --- CONFIGURAÇÕES ---
   const LIMITES_POR_SERIE = { '1': 35, '2': 25, '3': 41 };
@@ -47,19 +58,31 @@ const App = () => {
     '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
-
+/*
   const OPENING_CONFIG = {
   '3': "2026-01-29T20:00:00-03:00",
   '1': "2026-02-03T20:00:00-03:00",
   '2': "2026-02-03T20:00:00-03:00"
 };
+*/
 
+  const OPENING_CONFIG = {
+  '3': "2026-01-27T15:20:00-03:00",
+  '1': "2026-02-27T15:20:00-03:00",
+  '2': "2026-02-27T15:20:00-03:00"
+};
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
   // --- LÓGICA ---
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
     if (matriculaLogin === '0000') return setScreen('setup');
+    
+    // ✅ TRAVA DE SEGURANÇA: Impede o login se o cronômetro ainda não zerou
+    if (!timeLeft.isOpen) {
+      setLoginError('O portal ainda não está aberto para a sua série.');
+      return;
+    }
     
     setLoginProcessing(true);
     setLoginError('');
@@ -80,6 +103,8 @@ const App = () => {
     finally { setLoginProcessing(false); }
   };
 
+
+
   useEffect(() => {
     if (screen === 'form') {
       getDoc(doc(db, 'estatisticas', 'vagas')).then(s => {
@@ -98,6 +123,17 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // ✅ CHECAGEM DE SEGURANÇA FINAL: Verifica se o horário de abertura já passou
+    const agora = new Date().getTime();
+    const abertura = new Date(OPENING_CONFIG[userSerie]).getTime();
+    if (agora < abertura) {
+      setErro(true);
+      setMensagem('O formulário ainda não está aceitando envios.');
+      return;
+    }
+
+    if (processando) return;
     setProcessando(true);
     setErro(false);
     const limite = getLimiteAtual();
@@ -167,29 +203,29 @@ const App = () => {
   };
 
 
-  useEffect(() => {
-  if (screen === 'form' && userSerie) {
-    const targetDate = new Date(OPENING_CONFIG[userSerie]).getTime();
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+useEffect(() => {
+  // Define qual data de abertura usar (baseado na série detectada ou padrão da 3ª)
+  const targetSerie = detectedSerie || '3';
+  const targetDate = new Date(OPENING_CONFIG[targetSerie]).getTime();
 
-      if (distance < 0) {
-        setTimeLeft(prev => ({ ...prev, isOpen: true }));
-        clearInterval(timer);
-      } else {
-        setTimeLeft({
-          d: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          s: Math.floor((distance % (1000 * 60)) / 1000),
-          isOpen: false
-        });
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }
-}, [screen, userSerie]);
+  const timer = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance <= 0) {
+      setTimeLeft(prev => ({ ...prev, isOpen: true }));
+    } else {
+      setTimeLeft({
+        d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        s: Math.floor((distance % (1000 * 60)) / 1000),
+        isOpen: false
+      });
+    }
+  }, 1000);
+  return () => clearInterval(timer);
+}, [detectedSerie]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
@@ -237,13 +273,30 @@ const App = () => {
                       required 
                     />
                   </div>
-                  <button 
-                    disabled={loginProcessing}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:bg-slate-300"
-                  >
-                    <LogIn size={20} />
-                    {loginProcessing ? 'Validando...' : 'Entrar no Formulário'}
-                  </button>
+                  {!timeLeft.isOpen ? (
+  <div className="w-full bg-slate-900 text-white p-6 rounded-2xl flex flex-col items-center gap-2 border border-slate-700 shadow-inner">
+    <div className="flex items-center justify-center gap-2 font-bold text-xs text-blue-400 uppercase tracking-widest">
+      <Clock size={16} className="animate-pulse" />
+      Acesso liberado em:
+    </div>
+    <div className="text-2xl font-black font-mono">
+      {timeLeft.d}d {timeLeft.h}h {timeLeft.m}m {timeLeft.s}s
+    </div>
+    {detectedSerie && (
+      <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest border-t border-slate-700 pt-2 w-full">
+        Cronograma para {detectedSerie}ª Série
+      </p>
+    )}
+  </div>
+) : (
+  <button 
+    disabled={loginProcessing} 
+    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:bg-slate-300"
+  >
+    <LogIn size={20} />
+    {loginProcessing ? 'Validando...' : 'Entrar no Formulário'}
+  </button>
+)}
                   {loginError && (
                     <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
                       <AlertTriangle size={16} />
@@ -380,24 +433,13 @@ const App = () => {
                 )}
 
 <div ref={botaoRef} className="pt-4 w-full flex justify-center">
-  {!timeLeft.isOpen ? (
-    <div className="bg-amber-100 text-amber-800 p-6 rounded-3xl w-full flex flex-col items-center gap-2 border border-amber-200">
-      <div className="flex items-center gap-2 font-black text-lg">
-        <Clock size={24} className="animate-pulse" /> INSCRIÇÕES ABREM EM:
-      </div>
-      <div className="text-3xl font-black font-mono">
-        {timeLeft.d}d {timeLeft.h}h {timeLeft.m}m {timeLeft.s}s
-      </div>
-      <p className="text-xs font-bold mt-2 uppercase opacity-70 italic">O botão de confirmação aparecerá automaticamente no horário previsto.</p>
-    </div>
-  ) : (
-    <button 
-      disabled={processando || !turma}
-      className="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all"
-    >
-      <Send size={22} /> {processando ? 'ENVIANDO...' : 'FINALIZAR MINHA INSCRIÇÃO'}
-    </button>
-  )}
+  <button 
+    disabled={processando || !turma}
+    className="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 disabled:bg-slate-300"
+  >
+    <Send size={22} />
+    {processando ? 'ENVIANDO...' : 'FINALIZAR MINHA INSCRIÇÃO'}
+  </button>
 </div>
                 
                 {mensagem && erro && (
