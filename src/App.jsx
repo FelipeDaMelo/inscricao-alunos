@@ -30,7 +30,6 @@ const App = () => {
   const [chosenTercaName, setChosenTercaName] = useState('');
   const [chosenQuintaName, setChosenQuintaName] = useState('');
   const [detectedSerie, setDetectedSerie] = useState(null);
-  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0, isOpen: false });
   const botaoRef = useRef(null);
   const isTerceiraSerie = turma.startsWith('3');
 
@@ -65,6 +64,11 @@ const App = () => {
   '2': "2026-02-03T20:00:00-03:00"
 };
 
+const [times, setTimes] = useState({
+  serie3: { d: 0, h: 0, m: 0, s: 0, open: false },
+  serie12: { d: 0, h: 0, m: 0, s: 0, open: false }
+});
+
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
   // --- LÓGICA ---
@@ -72,9 +76,10 @@ const handleLogin = async (e) => {
     e.preventDefault();
     if (matriculaLogin === '0000') return setScreen('setup');
     
-    // ✅ TRAVA DE SEGURANÇA: Impede o login se o cronômetro ainda não zerou
-    if (!timeLeft.isOpen) {
-      setLoginError('O portal ainda não está aberto para a sua série.');
+    // ✅ CORREÇÃO: Verifica se o cronômetro da série detectada já abriu
+    const infoTimer = detectedSerie === '3' ? times.serie3 : times.serie12;
+    if (!infoTimer.open) {
+      setLoginError(`O portal para a ${detectedSerie}ª série ainda não está aberto.`);
       return;
     }
     
@@ -118,12 +123,14 @@ const handleLogin = async (e) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // ✅ CHECAGEM DE SEGURANÇA FINAL: Verifica se o horário de abertura já passou
+    // ✅ GARANTIA: Força a série a ser string para buscar na config
+    const serieStr = userSerie.toString();
     const agora = new Date().getTime();
-    const abertura = new Date(OPENING_CONFIG[userSerie]).getTime();
+    const abertura = new Date(OPENING_CONFIG[serieStr]).getTime();
+
     if (agora < abertura) {
       setErro(true);
-      setMensagem('O formulário ainda não está aceitando envios.');
+      setMensagem('O formulário ainda não está aberto para sua série.');
       return;
     }
 
@@ -198,28 +205,30 @@ const handleLogin = async (e) => {
 
 
 useEffect(() => {
-  // Define qual data de abertura usar (baseado na série detectada ou padrão da 3ª)
-  const targetSerie = detectedSerie || '3';
-  const targetDate = new Date(OPENING_CONFIG[targetSerie]).getTime();
+  const check = () => {
+    const agora = new Date().getTime();
+    const t3 = new Date(OPENING_CONFIG['3']).getTime();
+    const t12 = new Date(OPENING_CONFIG['1']).getTime(); // 1 e 2 são iguais
 
-  const timer = setInterval(() => {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
+    const calc = (target) => {
+      const diff = target - agora;
+      if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, open: true };
+      return {
+        d: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        s: Math.floor((diff % (1000 * 60)) / 1000),
+        open: false
+      };
+    };
 
-    if (distance <= 0) {
-      setTimeLeft(prev => ({ ...prev, isOpen: true }));
-    } else {
-      setTimeLeft({
-        d: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        s: Math.floor((distance % (1000 * 60)) / 1000),
-        isOpen: false
-      });
-    }
-  }, 1000);
+    setTimes({ serie3: calc(t3), serie12: calc(t12) });
+  };
+
+  check();
+  const timer = setInterval(check, 1000);
   return () => clearInterval(timer);
-}, [detectedSerie]);
+}, []);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
@@ -255,49 +264,57 @@ useEffect(() => {
               <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100">
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso</h2>
                 <p className="text-slate-500 mb-8">Digite sua matrícula para iniciar.</p>
-                <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
-                  <div className="w-full">
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
-                    <input 
-                      type="tel" 
-                      value={matriculaLogin} 
-                      onChange={e => setMatriculaLogin(e.target.value)}
-                      placeholder="Apenas números"
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                      required 
-                    />
-                  </div>
-                  {!timeLeft.isOpen ? (
-  <div className="w-full bg-slate-900 text-white p-6 rounded-2xl flex flex-col items-center gap-2 border border-slate-700 shadow-inner">
-    <div className="flex items-center justify-center gap-2 font-bold text-xs text-blue-400 uppercase tracking-widest">
-      <Clock size={16} className="animate-pulse" />
-      Acesso liberado em:
-    </div>
-    <div className="text-2xl font-black font-mono">
-      {timeLeft.d}d {timeLeft.h}h {timeLeft.m}m {timeLeft.s}s
-    </div>
-    {detectedSerie && (
-      <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest border-t border-slate-700 pt-2 w-full">
-        Cronograma para {detectedSerie}ª Série
-      </p>
-    )}
+               <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
+  <div className="w-full">
+    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
+    <input 
+      type="tel" value={matriculaLogin} onChange={e => setMatriculaLogin(e.target.value)}
+      placeholder="Digite sua matrícula"
+      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+      required 
+    />
   </div>
-) : (
-  <button 
-    disabled={loginProcessing} 
-    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:bg-slate-300"
-  >
-    <LogIn size={20} />
-    {loginProcessing ? 'Validando...' : 'Entrar no Formulário'}
-  </button>
-)}
-                  {loginError && (
-                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
-                      <AlertTriangle size={16} />
-                      <span>{loginError}</span>
-                    </div>
-                  )}
-                </form>
+
+  {/* Grade de Cronômetros */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    {/* Timer 3ª Série */}
+    <div className={`p-4 rounded-2xl border ${times.serie3.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
+      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie3.open ? 'text-green-600' : 'text-blue-400'}`}>3ª Série</p>
+      {times.serie3.open ? (
+        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
+      ) : (
+        <div className="text-white font-mono text-lg font-black">{times.serie3.d}d {times.serie3.h}h {times.serie3.m}m {times.serie3.s}s</div>
+      )}
+    </div>
+
+    {/* Timer 1ª e 2ª Séries */}
+    <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
+      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>1ª e 2ª Séries</p>
+      {times.serie12.open ? (
+        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
+      ) : (
+        <div className="text-white font-mono text-lg font-black">{times.serie12.d}d {times.serie12.h}h {times.serie12.m}m {times.serie12.s}s</div>
+      )}
+    </div>
+  </div>
+
+  {/* Lógica do Botão: Só aparece se a matrícula bater com um timer aberto */}
+  {((detectedSerie === '3' && times.serie3.open) || 
+    ((detectedSerie === '1' || detectedSerie === '2') && times.serie12.open)) ? (
+    <button 
+      type="submit" disabled={loginProcessing}
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+    >
+      <LogIn size={20} /> {loginProcessing ? 'VALIDANDO...' : 'ENTRAR NO FORMULÁRIO'}
+    </button>
+  ) : (
+    <div className="text-slate-400 text-xs font-bold uppercase tracking-tighter animate-pulse italic">
+       {detectedSerie ? `Aguardando abertura para a ${detectedSerie}ª série...` : "Digite sua matrícula para validar o acesso"}
+    </div>
+  )}
+
+  {loginError && <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full"><span>{loginError}</span></div>}
+</form>
               </div>
             </div>
           </div>
