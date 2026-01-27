@@ -4,6 +4,7 @@ import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTra
 import { ALUNOS_2026 } from './alunos';
 import logo from './logo-marista.png';
 import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle, Clock, Timer } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const App = () => {
   // --- ESTADOS ---
@@ -30,6 +31,7 @@ const App = () => {
   const [chosenTercaName, setChosenTercaName] = useState('');
   const [chosenQuintaName, setChosenQuintaName] = useState('');
   const [detectedSerie, setDetectedSerie] = useState(null);
+  const [historicoChoice, setHistoricoChoice] = useState(null);
   const botaoRef = useRef(null);
   const isTerceiraSerie = turma.startsWith('3');
 
@@ -72,17 +74,99 @@ const [times, setTimes] = useState({
 
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
+
+  const exportarParaExcel = async () => {
+    setLoginProcessing(true);
+    setLoginError('Preparando 8 abas por disciplina...');
+    
+    try {
+      const querySnapshot = await getDocs(collection(db, 'inscricoes'));
+      const dadosBrutos = querySnapshot.docs.map(doc => doc.data());
+
+      if (dadosBrutos.length === 0) throw new Error('Nenhuma inscrição encontrada.');
+
+      const workbook = XLSX.utils.book_new();
+      const listasPorDisciplina = {};
+
+      // 1. Mapeamento dos dados para as abas
+      dadosBrutos.forEach(item => {
+        const criarLinha = (discNome) => ({
+          'Nome Completo': item.nome,
+          'Série/Turma': item.turma,
+          'Matrícula': item.matricula,
+          'Disciplina': discNome,
+          'Data da Inscrição': item.timestamp?.toDate().toLocaleString('pt-BR') || ''
+        });
+
+        // Alunos de 1ª e 2ª séries (Escolha única)
+        if (item.disciplina) {
+          if (!listasPorDisciplina[item.disciplina]) listasPorDisciplina[item.disciplina] = [];
+          listasPorDisciplina[item.disciplina].push(criarLinha(item.disciplina));
+        }
+        
+        // Alunos de 3ª série (Duas escolhas: aparece em duas abas)
+        if (item.terca) {
+          const nomeTabTerca = `3EM - ${item.terca}`;
+          if (!listasPorDisciplina[nomeTabTerca]) listasPorDisciplina[nomeTabTerca] = [];
+          listasPorDisciplina[nomeTabTerca].push(criarLinha(item.terca));
+        }
+        if (item.quinta) {
+          const nomeTabQuinta = `3EM - ${item.quinta}`;
+          if (!listasPorDisciplina[nomeTabQuinta]) listasPorDisciplina[nomeTabQuinta] = [];
+          listasPorDisciplina[nomeTabQuinta].push(criarLinha(item.quinta));
+        }
+      });
+
+      // 2. Criar as abas ordenadas
+      const nomesDasAbas = Object.keys(listasPorDisciplina).sort();
+
+      nomesDasAbas.forEach(nomeAba => {
+        // Ordenar os alunos desta aba por Nome Completo (A-Z)
+        const listaOrdenada = listasPorDisciplina[nomeAba].sort((a, b) => 
+          a['Nome Completo'].localeCompare(b['Nome Completo'])
+        );
+
+        const worksheet = XLSX.utils.json_to_sheet(listaOrdenada);
+        
+        // Ajuste de layout das colunas
+        worksheet['!cols'] = [
+          { wch: 45 }, // Nome
+          { wch: 15 }, // Turma
+          { wch: 15 }, // Matrícula
+          { wch: 35 }, // Disciplina
+          { wch: 20 }  // Data
+        ];
+
+        // Limita o nome da aba a 31 caracteres (regra do Excel) e remove caracteres proibidos
+        const nomeLimpo = nomeAba.substring(0, 31).replace(/[\\\/\?\*\[\]]/g, "");
+        XLSX.utils.book_append_sheet(workbook, worksheet, nomeLimpo);
+      });
+
+      // 3. Download do arquivo
+      XLSX.writeFile(workbook, `Relatorio_Inscricoes_FIO_2026.xlsx`);
+      setLoginError('Planilha exportada com sucesso!');
+      
+    } catch (err) {
+      setLoginError('Falha na exportação: ' + err.message);
+    } finally {
+      setLoginProcessing(false);
+      setMatriculaLogin('');
+    }
+  };
+
   // --- LÓGICA ---
 const handleLogin = async (e) => {
     e.preventDefault();
     if (matriculaLogin === '0000') return setScreen('setup');
-
-        if (detectedSerie === '1') {
-      setLoginError('A 1ª Série não participa desse processo de escolha. Converse com o prof. Felipe para informações.');
+    if (detectedSerie === '1') {
+      setLoginError('A 1ª Série não participa deste processo...');
       return;
     }
-    
-    // ✅ CORREÇÃO: Verifica se o cronômetro da série detectada já abriu
+    if (matriculaLogin === '260189') {
+      await exportarParaExcel();
+      return;
+    }
+
     const infoTimer = detectedSerie === '3' ? times.serie3 : times.serie12;
     if (!infoTimer.open) {
       setLoginError(`O portal para a ${detectedSerie}ª série ainda não está aberto.`);
@@ -96,17 +180,20 @@ const handleLogin = async (e) => {
       const snap = await getDocs(q);
       if (!snap.empty) throw new Error('Inscrição já realizada para esta matrícula.');
 
-      const docSnap = await getDoc(doc(db, "matriculasValidas", matriculaLogin));
+      const docRef = doc(db, "matriculasValidas", matriculaLogin);
+      const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         const studentData = docSnap.data();
         setWelcomeName(studentData.nome);
         setMatriculaValidada(matriculaLogin);
         setUserSerie(studentData.serie.toString());
+        setHistoricoChoice(studentData.jaCursou || null); // ✅ Importante ter essa linha aqui
         setScreen('form');
       } else throw new Error('Matrícula não encontrada no sistema.');
     } catch (err) { setLoginError(err.message); } 
     finally { setLoginProcessing(false); }
-  };
+};
 
 
 
@@ -187,6 +274,14 @@ const handleLogin = async (e) => {
 
         transaction.update(vRef, updates);
         transaction.set(doc(collection(db, 'inscricoes')), dados);
+        const alunoRef = doc(db, "matriculasValidas", matriculaValidada);
+if (isTerceiraSerie) {
+  // Para 3ª série, salvamos as duas como um array ou string combinada
+  transaction.update(alunoRef, { jaCursou: [disciplinaTerca, disciplinaQuinta] });
+} else {
+  // Para 2ª série (foco do rodízio), salvamos o ID da disciplina
+  transaction.update(alunoRef, { jaCursou: disciplina });
+}
       });
       
       setScreen('success'); // ✅ Muda para a página de sucesso
@@ -199,15 +294,22 @@ const handleLogin = async (e) => {
   };
 
   function renderOption(disc) {
-    const ocupadas = contagemVagas[disc.id] || 0;
-    const lim = getLimiteAtual();
-    const full = ocupadas >= lim;
-    return <option key={disc.id} value={disc.id} disabled={full}>{disc.nome} {full ? '(Esgotado)' : `- ${lim - ocupadas} vagas restantes`}</option>;
-  }
+  const ocupadas = contagemVagas[disc.id] || 0;
+  const lim = getLimiteAtual();
+  const full = ocupadas >= lim;
 
-  const getTurmasFiltradas = () => {
-    return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
-  };
+  // ✅ NOVA TRAVA DE HISTÓRICO:
+  // Verifica se o ID da disciplina atual está no histórico (seja string ou array)
+  const jaFoiCursada = Array.isArray(historicoChoice) 
+    ? historicoChoice.includes(disc.id) 
+    : historicoChoice === disc.id;
+
+  return (
+    <option key={disc.id} value={disc.id} disabled={full || jaFoiCursada}>
+      {disc.nome} {jaFoiCursada ? ' (Indisponível: já cursada)' : full ? ' (Esgotado)' : `- ${lim - ocupadas} vagas`}
+    </option>
+  );
+}
 
 
 useEffect(() => {
@@ -313,8 +415,7 @@ useEffect(() => {
       Converse com o prof. Felipe para informações.
     </p>
   </div>
-) : ((detectedSerie === '3' && times.serie3.open) || 
-    ((detectedSerie === '1' || detectedSerie === '2') && times.serie12.open)) ? (
+) : ((detectedSerie === '3' && times.serie3.open) || (detectedSerie === '2' && times.serie12.open)) ? (
     <button 
       type="submit" disabled={loginProcessing}
       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
@@ -418,6 +519,7 @@ useEffect(() => {
                     required
                   >
                     <option value="">Selecione sua turma</option>
+                    
                     {getTurmasFiltradas().map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
