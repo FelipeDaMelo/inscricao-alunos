@@ -3,7 +3,7 @@ import { db } from './firebase';
 import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch } from 'firebase/firestore';
 import { ALUNOS_2026 } from './alunos';
 import logo from './logo-marista.png';
-import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle, Clock, Timer } from 'lucide-react';
 
 const App = () => {
   // --- ESTADOS ---
@@ -29,7 +29,7 @@ const App = () => {
   const [chosenDiscName, setChosenDiscName] = useState('');
   const [chosenTercaName, setChosenTercaName] = useState('');
   const [chosenQuintaName, setChosenQuintaName] = useState('');
-
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0, isOpen: false });
   const botaoRef = useRef(null);
   const isTerceiraSerie = turma.startsWith('3');
 
@@ -47,6 +47,12 @@ const App = () => {
     '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
+
+  const OPENING_CONFIG = {
+  '3': "2026-01-29T20:00:00-03:00",
+  '1': "2026-02-03T20:00:00-03:00",
+  '2': "2026-02-03T20:00:00-03:00"
+};
 
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
@@ -159,6 +165,31 @@ const App = () => {
   const getTurmasFiltradas = () => {
     return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
   };
+
+
+  useEffect(() => {
+  if (screen === 'form' && userSerie) {
+    const targetDate = new Date(OPENING_CONFIG[userSerie]).getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        setTimeLeft(prev => ({ ...prev, isOpen: true }));
+        clearInterval(timer);
+      } else {
+        setTimeLeft({
+          d: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          h: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          m: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          s: Math.floor((distance % (1000 * 60)) / 1000),
+          isOpen: false
+        });
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }
+}, [screen, userSerie]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
@@ -348,15 +379,26 @@ const App = () => {
                   </div>
                 )}
 
-                <div ref={botaoRef} className="pt-4 w-full flex justify-center">
-                  <button 
-                    disabled={processando || !turma}
-                    className="w-full max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-300"
-                  >
-                    <Send size={22} />
-                    {processando ? 'Processando...' : 'Finalizar Inscrição'}
-                  </button>
-                </div>
+<div ref={botaoRef} className="pt-4 w-full flex justify-center">
+  {!timeLeft.isOpen ? (
+    <div className="bg-amber-100 text-amber-800 p-6 rounded-3xl w-full flex flex-col items-center gap-2 border border-amber-200">
+      <div className="flex items-center gap-2 font-black text-lg">
+        <Clock size={24} className="animate-pulse" /> INSCRIÇÕES ABREM EM:
+      </div>
+      <div className="text-3xl font-black font-mono">
+        {timeLeft.d}d {timeLeft.h}h {timeLeft.m}m {timeLeft.s}s
+      </div>
+      <p className="text-xs font-bold mt-2 uppercase opacity-70 italic">O botão de confirmação aparecerá automaticamente no horário previsto.</p>
+    </div>
+  ) : (
+    <button 
+      disabled={processando || !turma}
+      className="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all"
+    >
+      <Send size={22} /> {processando ? 'ENVIANDO...' : 'FINALIZAR MINHA INSCRIÇÃO'}
+    </button>
+  )}
+</div>
                 
                 {mensagem && erro && (
                     <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
