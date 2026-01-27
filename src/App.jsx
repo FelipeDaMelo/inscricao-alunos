@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc } from 'firebase/firestore';
+import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch } from 'firebase/firestore';
 import { ALUNOS_2026 } from './alunos';
 import logo from './logo-marista.png';
-import { CheckCircle, AlertTriangle, LogIn, Send, Info } from 'lucide-react';
+import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle } from 'lucide-react';
 
 const App = () => {
   // --- ESTADOS ---
@@ -14,7 +14,7 @@ const App = () => {
   const [welcomeName, setWelcomeName] = useState('');
   const [nomeCompleto, setNomeCompleto] = useState('');
   const [turma, setTurma] = useState('');
-  const [userSerie, setUserSerie] = useState(null); // ✅ Novo estado para a série
+  const [userSerie, setUserSerie] = useState(null);
   const [matriculaValidada, setMatriculaValidada] = useState('');
   const [disciplina, setDisciplina] = useState('');
   const [disciplinaTerca, setDisciplinaTerca] = useState('');
@@ -25,6 +25,11 @@ const App = () => {
   const [contagemVagas, setContagemVagas] = useState({});
   const [carregandoVagas, setCarregandoVagas] = useState(true);
   
+  // Estados para armazenar os nomes amigáveis para a tela de sucesso
+  const [chosenDiscName, setChosenDiscName] = useState('');
+  const [chosenTercaName, setChosenTercaName] = useState('');
+  const [chosenQuintaName, setChosenQuintaName] = useState('');
+
   const botaoRef = useRef(null);
   const isTerceiraSerie = turma.startsWith('3');
 
@@ -62,7 +67,7 @@ const App = () => {
         const studentData = docSnap.data();
         setWelcomeName(studentData.nome);
         setMatriculaValidada(matriculaLogin);
-        setUserSerie(studentData.serie.toString()); // ✅ Salva a série do aluno
+        setUserSerie(studentData.serie.toString());
         setScreen('form');
       } else throw new Error('Matrícula não encontrada no sistema.');
     } catch (err) { setLoginError(err.message); } 
@@ -94,7 +99,7 @@ const App = () => {
     const normalizar = (str) => str.normalize("NFD").replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
     if (normalizar(nomeCompleto) !== normalizar(welcomeName)) {
       setErro(true);
-      setMensagem('O nome não coincide com o cadastro. Verifique a grafia e acentuação.');
+      setMensagem('O nome não coincide com o cadastro. Verifique a grafia.');
       setProcessando(false);
       return;
     }
@@ -109,23 +114,39 @@ const App = () => {
         let updates = {};
 
         if (isTerceiraSerie) {
-          if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas em um dos horários.");
+          if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas.");
+          
+          const nomeT = disciplinasPorTurma[turma].terca.find(d => d.id === disciplinaTerca).nome;
+          const nomeQ = disciplinasPorTurma[turma].quinta.find(d => d.id === disciplinaQuinta).nome;
+          
           updates[disciplinaTerca] = (vData[disciplinaTerca] || 0) + 1;
           updates[disciplinaQuinta] = (vData[disciplinaQuinta] || 0) + 1;
-          dados.terca = disciplinasPorTurma[turma].terca.find(d => d.id === disciplinaTerca).nome;
-          dados.quinta = disciplinasPorTurma[turma].quinta.find(d => d.id === disciplinaQuinta).nome;
+          dados.terca = nomeT;
+          dados.quinta = nomeQ;
+          
+          setChosenTercaName(nomeT);
+          setChosenQuintaName(nomeQ);
         } else {
-          if (vData[disciplina] >= limite) throw new Error("Vagas esgotadas para esta disciplina.");
+          if (vData[disciplina] >= limite) throw new Error("Vagas esgotadas.");
+          
+          const nomeD = disciplinasPorTurma[turma].find(d => d.id === disciplina).nome;
+          
           updates[disciplina] = (vData[disciplina] || 0) + 1;
-          dados.disciplina = disciplinasPorTurma[turma].find(d => d.id === disciplina).nome;
+          dados.disciplina = nomeD;
+          setChosenDiscName(nomeD);
         }
 
         transaction.update(vRef, updates);
         transaction.set(doc(collection(db, 'inscricoes')), dados);
       });
-      setMensagem('Inscrição realizada com sucesso! Você já pode fechar esta página.');
-    } catch (e) { setErro(true); setMensagem(e.message); } 
-    finally { setProcessando(false); }
+      
+      setScreen('success'); // ✅ Muda para a página de sucesso
+    } catch (e) { 
+      setErro(true); 
+      setMensagem(e.message); 
+    } finally { 
+      setProcessando(false); 
+    }
   };
 
   function renderOption(disc) {
@@ -135,7 +156,6 @@ const App = () => {
     return <option key={disc.id} value={disc.id} disabled={full}>{disc.nome} {full ? '(Esgotado)' : `- ${lim - ocupadas} vagas restantes`}</option>;
   }
 
-  // ✅ Função para filtrar as turmas baseadas na série do aluno logado
   const getTurmasFiltradas = () => {
     return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
   };
@@ -145,12 +165,12 @@ const App = () => {
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
         
         {screen === 'login' ? (
-          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center text-center">
             {/* Coluna de Instruções */}
             <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
               <img src={logo} alt="Logo" className="mb-8 w-48 mx-auto" />
-              <h1 className="text-3xl font-extrabold text-slate-800 mb-2 text-center">Inscrição Formação Optativa</h1>
-              <p className="text-blue-600 font-semibold mb-8 text-center">Ensino Médio • Ciclo 2026 / 1</p>
+              <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Optativa</h1>
+              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • Ciclo 2026 / 1</p>
               
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-xl w-full flex flex-col items-center">
                 <div className="flex items-center justify-center gap-2 text-blue-800 font-bold mb-4">
@@ -172,11 +192,11 @@ const App = () => {
             {/* Coluna de Login */}
             <div className="md:col-span-2 flex flex-col justify-center">
               <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100">
-                <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">Acesso</h2>
-                <p className="text-slate-500 mb-8 text-center">Digite sua matrícula para iniciar.</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso</h2>
+                <p className="text-slate-500 mb-8">Digite sua matrícula para iniciar.</p>
                 <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
                   <div className="w-full">
-                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Número de Matrícula</label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
                     <input 
                       type="tel" 
                       value={matriculaLogin} 
@@ -196,7 +216,7 @@ const App = () => {
                   {loginError && (
                     <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
                       <AlertTriangle size={16} />
-                      <span className="text-center">{loginError}</span>
+                      <span>{loginError}</span>
                     </div>
                   )}
                 </form>
@@ -205,6 +225,50 @@ const App = () => {
           </div>
         ) : screen === 'setup' ? (
             <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
+        ) : screen === 'success' ? (
+          /* ✅ NOVA PÁGINA DE SUCESSO */
+          <div className="w-full max-w-2xl animate-in fade-in zoom-in duration-500">
+            <header className="flex flex-col items-center mb-8">
+              <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
+            </header>
+            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
+              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle size={48} />
+              </div>
+              <h2 className="text-3xl font-black text-slate-800 mb-2">Inscrição Confirmada!</h2>
+              <p className="text-slate-500 mb-8 text-lg">Parabéns, seu lugar está garantido.</p>
+              
+              <div className="w-full bg-slate-50 rounded-2xl p-6 border border-slate-100 text-center mb-8">
+                <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Estudante</p>
+                <p className="text-xl font-bold text-slate-800 mb-4">{welcomeName}</p>
+                
+                <div className="h-px bg-slate-200 w-16 mx-auto mb-4"></div>
+                
+                <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Disciplina(s) Escolhida(s)</p>
+                {isTerceiraSerie ? (
+                  <div className="space-y-2">
+                    <p className="text-slate-700"><span className="font-bold text-blue-600">Terça:</span> {chosenTercaName}</p>
+                    <p className="text-slate-700"><span className="font-bold text-blue-600">Quinta:</span> {chosenQuintaName}</p>
+                  </div>
+                ) : (
+                  <p className="text-lg font-semibold text-slate-700">{chosenDiscName}</p>
+                )}
+                <p className="mt-4 text-sm text-slate-500 font-medium">Turma: {turma}</p>
+              </div>
+
+              <div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-2 rounded-full text-sm font-bold">
+                <Info size={16} />
+                <span>Você já pode fechar esta página com segurança.</span>
+              </div>
+              
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-8 text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
+              >
+                Voltar ao Início
+              </button>
+            </main>
+          </div>
         ) : (
           /* Tela do Formulário */
           <div className="w-full max-w-3xl">
@@ -220,24 +284,24 @@ const App = () => {
               <form onSubmit={handleSubmit} className="space-y-8 flex flex-col items-center">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                   <div className="flex flex-col items-center">
-                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Matrícula</label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Matrícula</label>
                     <input type="text" value={matriculaValidada} disabled className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 font-mono text-center" />
                   </div>
                   <div className="flex flex-col items-center">
-                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Confirme seu Nome Completo</label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Confirme seu Nome Completo</label>
                     <input 
                       type="text" 
                       value={nomeCompleto} 
                       onChange={e => setNomeCompleto(e.target.value)}
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Nome exatamente como cadastrado"
+                      placeholder="Nome completo"
                       required 
                     />
                   </div>
                 </div>
 
                 <div className="w-full flex flex-col items-center">
-                  <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Sua Turma</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Sua Turma</label>
                   <select 
                     value={turma} 
                     onChange={e => { setTurma(e.target.value); setDisciplina(''); setDisciplinaTerca(''); setDisciplinaQuinta(''); }}
@@ -245,7 +309,6 @@ const App = () => {
                     required
                   >
                     <option value="">Selecione sua turma</option>
-                    {/* ✅ FILTRAGEM APLICADA AQUI */}
                     {getTurmasFiltradas().map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -260,16 +323,16 @@ const App = () => {
                     {isTerceiraSerie ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <div className="flex flex-col items-center">
-                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Terça-feira</label>
+                          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Terça-feira</label>
                           <select value={disciplinaTerca} onChange={e => setDisciplinaTerca(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
-                            <option value="">Escolha...</option>
+                            <option value="">Selecione...</option>
                             {disciplinasPorTurma[turma]?.terca?.map(renderOption)}
                           </select>
                         </div>
                         <div className="flex flex-col items-center">
                           <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Quinta-feira</label>
                           <select value={disciplinaQuinta} onChange={e => setDisciplinaQuinta(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
-                            <option value="">Escolha...</option>
+                            <option value="">Selecione...</option>
                             {disciplinasPorTurma[turma]?.quinta?.map(renderOption)}
                           </select>
                         </div>
@@ -287,21 +350,21 @@ const App = () => {
 
                 <div ref={botaoRef} className="pt-4 w-full flex justify-center">
                   <button 
-                    disabled={processando || !turma || mensagem.includes('sucesso')}
+                    disabled={processando || !turma}
                     className="w-full max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-300"
                   >
                     <Send size={22} />
-                    {processando ? 'Confirmando...' : 'Finalizar Inscrição'}
+                    {processando ? 'Processando...' : 'Finalizar Inscrição'}
                   </button>
                 </div>
+                
+                {mensagem && erro && (
+                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
+                      <AlertTriangle size={16} />
+                      <span>{mensagem}</span>
+                    </div>
+                )}
               </form>
-
-              {mensagem && (
-                <div className={`mt-8 p-6 rounded-2xl flex items-center justify-center gap-4 w-full ${erro ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
-                  {erro ? <AlertTriangle className="flex-shrink-0" /> : <CheckCircle className="flex-shrink-0" />}
-                  <span className="font-bold text-center">{mensagem}</span>
-                </div>
-              )}
             </main>
           </div>
         )}
@@ -318,24 +381,22 @@ const SetupPage = ({ db, alunos, setScreen }) => {
   const [loading, setLoading] = useState(false);
   const run = async () => {
     if (!window.confirm("ATENÇÃO: Isso resetará TODAS as matrículas e vagas. Continuar?")) return;
+    setLoading(false);
     setLoading(true);
     try {
       const batch = writeBatch(db);
-      
       alunos.forEach((a) => {
         const ref = doc(db, "matriculasValidas", a.matricula.toString());
         batch.set(ref, a);
       });
-
       const vagasRef = doc(db, "estatisticas", "vagas");
       batch.set(vagasRef, {
         "Matemática Financeira_1EM": 0, "Ciências da Natureza_1EM": 0, "Ciências Humanas_1EM": 0, "Personal Development and Life Skills English Program_1EM": 0,
         "Aprendizagem interativa STEAM : Criação, desenvolvimento e automação": 0, "Ciências Humanas_2EM": 0, "Ciências da Natureza_2EM": 0, "Personal Development and Life Skills English Program_2EM": 0,
         "Ciências da Natureza_TER_3EM": 0, "Ciências Humanas_TER_3EM": 0, "Matemática_QUI_3EM": 0, "Linguagens_QUI_3EM": 0
       });
-
       await batch.commit();
-      alert("Sucesso! Banco configurado.");
+      alert("Sucesso!");
       setScreen('login');
     } catch (e) { alert(e.message); } 
     finally { setLoading(false); }
@@ -343,8 +404,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center">
       <div className="max-w-md flex flex-col items-center">
-        <h1 className="text-4xl font-black mb-4 text-center">Painel de Setup</h1>
-        <p className="text-slate-400 mb-8 text-sm text-center">Prepara o Firebase para o Ciclo 2026.</p>
+        <h1 className="text-4xl font-black mb-4">Painel de Setup</h1>
         <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-10 rounded-3xl font-black text-2xl shadow-2xl transition-all disabled:opacity-50">
           {loading ? "PROCESSANDO..." : "🚀 EXECUTAR SETUP 2026"}
         </button>
