@@ -105,6 +105,7 @@ const App = () => {
         let dados = { nome: nomeCompleto, turma, matricula: matriculaValidada, timestamp: serverTimestamp() };
         let updates = {};
 
+        // CORRIGIDO: de is3 para isTerceiraSerie
         if (isTerceiraSerie) {
           if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas em um dos horários.");
           updates[disciplinaTerca] = (vData[disciplinaTerca] || 0) + 1;
@@ -132,26 +133,24 @@ const App = () => {
     return <option key={disc.id} value={disc.id} disabled={full}>{disc.nome} {full ? '(Esgotado)' : `- ${lim - ocupadas} vagas restantes`}</option>;
   }
 
-  if (screen === 'setup') return <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />;
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <div className="flex-grow flex flex-col items-center p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
+      <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
         
         {screen === 'login' ? (
-          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8">
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
             {/* Coluna de Instruções */}
-            <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 text-center">
+            <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
               <img src={logo} alt="Logo" className="mb-8 w-48 mx-auto" />
-              <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Optativa</h1>
-              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • Ciclo 2026 / 1</p>
+              <h1 className="text-3xl font-extrabold text-slate-800 mb-2 text-center">Inscrição Formação Optativa</h1>
+              <p className="text-blue-600 font-semibold mb-8 text-center">Ensino Médio • Ciclo 2026 / 1</p>
               
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-xl inline-block text-center w-full">
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-xl w-full flex flex-col items-center">
                 <div className="flex items-center justify-center gap-2 text-blue-800 font-bold mb-4">
                   <Info size={20} />
                   <span>Leia com atenção</span>
                 </div>
-                <div className="text-sm text-blue-900 space-y-3 leading-relaxed">
+                <div className="text-sm text-blue-900 space-y-3 leading-relaxed text-center">
                   <p>Seja bem-vindo ao portal de escolha das Disciplinas Optativas para 2026.</p>
                   <p><strong>Regras Gerais:</strong></p>
                   <ul className="list-none space-y-2">
@@ -165,17 +164,17 @@ const App = () => {
 
             {/* Coluna de Login */}
             <div className="md:col-span-2 flex flex-col justify-center">
-              <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100 text-center">
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso</h2>
-                <p className="text-slate-500 mb-8">Digite sua matrícula para iniciar.</p>
-                <form onSubmit={handleLogin} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
+              <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100 flex flex-col items-center">
+                <h2 className="text-2xl font-bold text-slate-800 mb-2 text-center">Acesso</h2>
+                <p className="text-slate-500 mb-8 text-center">Digite sua matrícula para iniciar.</p>
+                <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
+                  <div className="w-full">
+                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Número de Matrícula</label>
                     <input 
                       type="tel" 
                       value={matriculaLogin} 
                       onChange={e => setMatriculaLogin(e.target.value)}
-                      placeholder="Ex: 10720..."
+                      placeholder="Digite sua matrícula"
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                       required 
                     />
@@ -188,96 +187,100 @@ const App = () => {
                     {loginProcessing ? 'Validando...' : 'Entrar no Formulário'}
                   </button>
                   {loginError && (
-                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl">
+                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
                       <AlertTriangle size={16} />
-                      <span>{loginError}</span>
+                      <span className="text-center">{loginError}</span>
                     </div>
                   )}
                 </form>
               </div>
             </div>
           </div>
+        ) : screen === 'setup' ? (
+            <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
         ) : (
           /* Tela do Formulário */
-          <div className="w-full max-w-3xl text-center">
-            <header className="flex flex-col items-center mb-8 text-center">
+          <div className="w-full max-w-3xl flex flex-col items-center">
+            <header className="flex flex-col items-center mb-8">
               <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
-              <div className="bg-white px-6 py-2 rounded-full shadow-sm border border-slate-100 flex items-center justify-center gap-3 mx-auto">
+              <div className="bg-white px-6 py-2 rounded-full shadow-sm border border-slate-100 flex items-center justify-center gap-3">
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
                 <span className="text-slate-700 font-medium">Logado como: <strong className="text-blue-700">{welcomeName}</strong></span>
               </div>
             </header>
 
-            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 text-center">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Matrícula</label>
+            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 w-full flex flex-col items-center">
+              <form onSubmit={handleSubmit} className="space-y-8 w-full flex flex-col items-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                  <div className="flex flex-col items-center">
+                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Matrícula</label>
                     <input type="text" value={matriculaValidada} disabled className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 font-mono text-center" />
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Confirme seu Nome Completo</label>
+                  <div className="flex flex-col items-center">
+                    <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Confirme seu Nome Completo</label>
                     <input 
                       type="text" 
                       value={nomeCompleto} 
                       onChange={e => setNomeCompleto(e.target.value)}
                       className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Nome exatamente como cadastrado"
+                      placeholder="Nome completo"
                       required 
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Sua Turma</label>
+                <div className="w-full flex flex-col items-center">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Sua Turma</label>
                   <select 
                     value={turma} 
                     onChange={e => { setTurma(e.target.value); setDisciplina(''); setDisciplinaTerca(''); setDisciplinaQuinta(''); }}
                     className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer appearance-none"
                     required
                   >
-                    <option value="">Selecione...</option>
-                    {turmas.map(t => <option key={t} value={t}>{t}</option>)}
+                    <option value="">Selecione sua turma</option>
+                    {Object.keys(disciplinasPorTurma).map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
 
                 {turma && (
-                  <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-300 text-center">
+                  <div className="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-300 w-full flex flex-col items-center">
                     <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center justify-center gap-2">
                       <Info size={18} className="text-blue-600" />
                       Escolha sua(s) Disciplina(s)
                     </h3>
                     
                     {isTerceiraSerie ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                        <div className="flex flex-col items-center">
                           <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Terça-feira</label>
                           <select value={disciplinaTerca} onChange={e => setDisciplinaTerca(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
                             <option value="">Selecione...</option>
-                            {disciplinasPorTurma[turma].terca.map(renderOption)}
+                            {disciplinasPorTurma[turma]?.terca?.map(renderOption)}
                           </select>
                         </div>
-                        <div>
+                        <div className="flex flex-col items-center">
                           <label className="block text-xs font-bold text-slate-500 uppercase mb-2 text-center">Quinta-feira</label>
                           <select value={disciplinaQuinta} onChange={e => setDisciplinaQuinta(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
                             <option value="">Selecione...</option>
-                            {disciplinasPorTurma[turma].quinta.map(renderOption)}
+                            {disciplinasPorTurma[turma]?.quinta?.map(renderOption)}
                           </select>
                         </div>
                       </div>
                     ) : (
-                      <select value={disciplina} onChange={e => setDisciplina(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
-                        <option value="">Selecione a disciplina...</option>
-                        {disciplinasPorTurma[turma].map(renderOption)}
-                      </select>
+                      <div className="w-full flex flex-col items-center">
+                        <select value={disciplina} onChange={e => setDisciplina(e.target.value)} className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none" required>
+                          <option value="">Selecione a disciplina</option>
+                          {Array.isArray(disciplinasPorTurma[turma]) && disciplinasPorTurma[turma].map(renderOption)}
+                        </select>
+                      </div>
                     )}
                   </div>
                 )}
 
-                <div ref={botaoRef} className="pt-4">
+                <div ref={botaoRef} className="pt-4 w-full flex justify-center">
                   <button 
                     disabled={processando || !turma || mensagem.includes('sucesso')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-300"
+                    className="w-full max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all disabled:bg-slate-300"
                   >
                     <Send size={22} />
                     {processando ? 'Processando...' : 'Confirmar Inscrição'}
@@ -286,9 +289,9 @@ const App = () => {
               </form>
 
               {mensagem && (
-                <div className={`mt-8 p-6 rounded-2xl flex items-center justify-center gap-4 ${erro ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
+                <div className={`mt-8 p-6 rounded-2xl flex items-center justify-center gap-4 w-full ${erro ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
                   {erro ? <AlertTriangle className="flex-shrink-0" /> : <CheckCircle className="flex-shrink-0" />}
-                  <span className="font-bold">{mensagem}</span>
+                  <span className="font-bold text-center">{mensagem}</span>
                 </div>
               )}
             </main>
@@ -324,9 +327,9 @@ const SetupPage = ({ db, alunos, setScreen }) => {
   };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center">
-      <div className="max-w-md">
-        <h1 className="text-4xl font-black mb-4">Painel de Setup</h1>
-        <p className="text-slate-400 mb-8 text-sm">Prepara o Firebase para o Ciclo 2026.</p>
+      <div className="max-w-md flex flex-col items-center">
+        <h1 className="text-4xl font-black mb-4 text-center">Painel de Setup</h1>
+        <p className="text-slate-400 mb-8 text-sm text-center">Prepara o Firebase para o Ciclo 2026.</p>
         <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-10 rounded-3xl font-black text-2xl shadow-2xl transition-all disabled:opacity-50">
           {loading ? "CONFIGURANDO..." : "🚀 EXECUTAR SETUP 2026"}
         </button>
