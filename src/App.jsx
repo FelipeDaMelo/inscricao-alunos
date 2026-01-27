@@ -57,19 +57,13 @@ const App = () => {
     '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
     '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
   };
-/*
+
   const OPENING_CONFIG = {
   '3': "2026-01-29T20:00:00-03:00",
   '1': "2026-02-03T20:00:00-03:00",
   '2': "2026-02-03T20:00:00-03:00"
 };
-*/
 
-  const OPENING_CONFIG = {
-  '3': "2026-01-27T16:00:00-03:00",
-  '1': "2026-01-27T16:02:00-03:00",
-  '2': "2026-01-27T16:02:00-03:00"
-};
 
 const [times, setTimes] = useState({
   serie3: { d: 0, h: 0, m: 0, s: 0, open: false },
@@ -82,6 +76,11 @@ const [times, setTimes] = useState({
 const handleLogin = async (e) => {
     e.preventDefault();
     if (matriculaLogin === '0000') return setScreen('setup');
+
+        if (detectedSerie === '1') {
+      setLoginError('A 1ª Série não participa desse processo de escolha. Converse com o prof. Felipe para informações.');
+      return;
+    }
     
     // ✅ CORREÇÃO: Verifica se o cronômetro da série detectada já abriu
     const infoTimer = detectedSerie === '3' ? times.serie3 : times.serie12;
@@ -296,7 +295,7 @@ useEffect(() => {
 
     {/* Timer 1ª e 2ª Séries */}
     <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
-      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Séries</p>
+      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Série</p>
       {times.serie12.open ? (
         <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
       ) : (
@@ -305,8 +304,16 @@ useEffect(() => {
     </div>
   </div>
 
-  {/* Lógica do Botão: Só aparece se a matrícula bater com um timer aberto */}
-  {((detectedSerie === '3' && times.serie3.open) || 
+{detectedSerie === '1' ? (
+  // 🚩 MENSAGEM PARA A 1ª SÉRIE
+  <div className="w-full bg-amber-50 border border-amber-200 p-6 rounded-2xl flex flex-col items-center gap-3 shadow-inner">
+    <Info size={24} className="text-amber-600" />
+    <p className="text-sm font-bold text-amber-900 leading-relaxed text-center">
+      A 1ª Série não participa desse processo de escolha. <br />
+      Converse com o prof. Felipe para informações.
+    </p>
+  </div>
+) : ((detectedSerie === '3' && times.serie3.open) || 
     ((detectedSerie === '1' || detectedSerie === '2') && times.serie12.open)) ? (
     <button 
       type="submit" disabled={loginProcessing}
