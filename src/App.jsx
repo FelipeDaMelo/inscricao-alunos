@@ -305,9 +305,11 @@ if (isTerceiraSerie) {
 
   // ✅ NOVA TRAVA DE HISTÓRICO:
   // Verifica se o ID da disciplina atual está no histórico (seja string ou array)
-  const jaFoiCursada = Array.isArray(historicoChoice) 
+const jaFoiCursada = userSerie === '2' && (
+  Array.isArray(historicoChoice) 
     ? historicoChoice.includes(disc.id) 
-    : historicoChoice === disc.id;
+    : historicoChoice === disc.id
+);
 
   return (
     <option key={disc.id} value={disc.id} disabled={full || jaFoiCursada}>
