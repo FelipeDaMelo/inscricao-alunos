@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch, deleteField  } from 'firebase/firestore';
 import { ALUNOS_2026 } from './alunos';
 import logo from './logo-marista.png';
 import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle, Clock, Timer } from 'lucide-react';
@@ -625,12 +625,117 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     } catch (e) { alert(e.message); } 
     finally { setLoading(false); }
   };
+
+ const prepararSegundoSemestre = async () => {
+    if (!window.confirm("ATENÇÃO: Isso apagará todas as INSCRIÇÕES e ZERARÁ as vagas, mas manterá o histórico (jaCursou). Use isso apenas APÓS gerar o Excel e antes de iniciar o 2º semestre. Continuar?")) return;
+
+    setLoading(true);
+    try {
+      const batch = writeBatch(db);
+
+      // 1. Apagar todas as inscrições atuais (Libera o acesso para logar de novo)
+      const inscricoesSnapshot = await getDocs(collection(db, 'inscricoes'));
+      inscricoesSnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      // 2. Zerar a contagem de vagas (Para começar do zero)
+      const vagasRef = doc(db, "estatisticas", "vagas");
+      batch.set(vagasRef, {
+        "Matemática Financeira_1EM": 0, "Ciências da Natureza_1EM": 0, "Ciências Humanas_1EM": 0, "Personal Development and Life Skills English Program_1EM": 0,
+        "Aprendizagem interativa STEAM : Criação, desenvolvimento e automação": 0, "Ciências Humanas_2EM": 0, "Ciências da Natureza_2EM": 0, "Personal Development and Life Skills English Program_2EM": 0,
+        "Ciências da Natureza_TER_3EM": 0, "Ciências Humanas_TER_3EM": 0, "Matemática_QUI_3EM": 0, "Linguagens_QUI_3EM": 0
+      });
+
+      await batch.commit();
+      alert("Sistema pronto para o 2º Semestre! Histórico dos alunos preservado, mas inscrições resetadas.");
+    } catch (e) {
+      alert("Erro: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+   const limparHistorico2Serie = async () => {
+    if (!window.confirm("Isso vai apagar o campo 'jaCursou' de TODOS os alunos da 2ª SÉRIE. Confirma?")) return;
+    
+    setLoading(true);
+    try {
+      // 1. Busca apenas alunos da série 2
+      // OBS: No seu print a série é número (serie: 3). Se não achar ninguém, troque 2 por "2".
+      const q = query(collection(db, "matriculasValidas"), where("serie", "==", 2));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        alert("Nenhum aluno da série 2 encontrado. Verifique se no banco a série está salva como número ou string.");
+        setLoading(false);
+        return;
+      }
+
+      // 2. Processa em Lotes (Batches) de 500 (limite do Firestore)
+      const batches = [];
+      let currentBatch = writeBatch(db);
+      let count = 0;
+      let totalUpdated = 0;
+
+      querySnapshot.forEach((document) => {
+        const docRef = doc(db, "matriculasValidas", document.id);
+        
+        // Remove o campo jaCursou
+        currentBatch.update(docRef, { jaCursou: deleteField() });
+        
+        count++;
+        totalUpdated++;
+
+        // Se atingir 499 operações, fecha o pacote e abre um novo
+        if (count >= 499) {
+          batches.push(currentBatch.commit());
+          currentBatch = writeBatch(db);
+          count = 0;
+        }
+      });
+
+      // Adiciona o último pacote se tiver sobrado algo
+      if (count > 0) {
+        batches.push(currentBatch.commit());
+      }
+
+      // Executa todas as promessas
+      await Promise.all(batches);
+
+      alert(`Sucesso! Histórico removido de ${totalUpdated} alunos da 2ª série.`);
+
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao limpar: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center">
-      <div className="max-w-md flex flex-col items-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center gap-6">
+      <div className="max-w-md flex flex-col items-center gap-4">
         <h1 className="text-4xl font-black mb-4">Painel de Setup</h1>
-        <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-10 rounded-3xl font-black text-2xl shadow-2xl transition-all disabled:opacity-50">
-          {loading ? "PROCESSANDO..." : "🚀 EXECUTAR SETUP 2026"}
+        
+        {/* Botão de Reset Total (Original) */}
+        <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-6 rounded-2xl font-black text-xl shadow-xl transition-all disabled:opacity-50">
+          {loading ? "PROCESSANDO..." : "🚀 RESET TOTAL (TUDO)"}
+        </button>
+
+        {/* Botão Novo Específico */}
+        <button onClick={limparHistorico2Serie} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+           <Timer size={24} />
+           {loading ? "LIMPANDO..." : "LIMPAR HISTÓRICO APENAS 2ª SÉRIE"}
+        </button>
+
+        <button onClick={prepararSegundoSemestre} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+    <Clock size={24} />
+    {loading ? "PROCESSANDO..." : "PREPARAR P/ 2º SEMESTRE (AGOSTO)"}
+    </button>
+
+        <button onClick={() => setScreen('login')} className="text-slate-400 underline mt-4">
+          Voltar ao Login
         </button>
       </div>
     </div>
