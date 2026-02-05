@@ -152,6 +152,7 @@ export const ALUNOS_2026 = [
   { "matricula": 10720250150, "nome": "MARIA CAROLINA ANDERLINI", "serie": 2 },
   { "matricula": 10720210077, "nome": "MARIA CLARA OLIVEIRA RODRIGUES", "serie": 2 },
   { "matricula": 10720130238, "nome": "MARIA EDUARDA MODESTO DE CASTRO", "serie": 2 },
+  { "matricula": 10720160102, "nome": "MARIA EDUARDA SILVA GONÇALVES", "serie": 2 },
   { "matricula": 10720150219, "nome": "MARIA LUISA FRANCISCHINI PECHT", "serie": 2 },
   { "matricula": 10720220093, "nome": "MIGUEL KAGE MOYA", "serie": 2 },
   { "matricula": 10720160201, "nome": "NICHOLAS MENESES FERREIRA RODRIGUES", "serie": 2 },

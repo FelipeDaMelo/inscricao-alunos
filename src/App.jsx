@@ -76,9 +76,9 @@ const [times, setTimes] = useState({
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
 
-  const exportarParaExcel = async () => {
+const exportarParaExcel = async () => {
     setLoginProcessing(true);
-    setLoginError('Preparando 8 abas por disciplina...');
+    setLoginError('Preparando abas e formatando dados...');
     
     try {
       const querySnapshot = await getDocs(collection(db, 'inscricoes'));
@@ -89,23 +89,21 @@ const [times, setTimes] = useState({
       const workbook = XLSX.utils.book_new();
       const listasPorDisciplina = {};
 
-      // 1. Mapeamento dos dados para as abas
+      // 1. Mapeamento e Transformação (Nomes em MAIÚSCULO)
       dadosBrutos.forEach(item => {
         const criarLinha = (discNome) => ({
-          'Nome Completo': item.nome,
-          'Série/Turma': item.turma,
-          'Matrícula': item.matricula,
-          'Disciplina': discNome,
-          'Data da Inscrição': item.timestamp?.toDate().toLocaleString('pt-BR') || ''
+          'NOME COMPLETO': item.nome.toUpperCase(), // Força maiúsculas
+          'SÉRIE/TURMA': item.turma,
+          'MATRÍCULA': item.matricula,
+          'DISCIPLINA': discNome.toUpperCase(), // Opcional: disciplina em maiúsculas
+          'DATA DA INSCRIÇÃO': item.timestamp?.toDate().toLocaleString('pt-BR') || ''
         });
 
-        // Alunos de 1ª e 2ª séries (Escolha única)
         if (item.disciplina) {
           if (!listasPorDisciplina[item.disciplina]) listasPorDisciplina[item.disciplina] = [];
           listasPorDisciplina[item.disciplina].push(criarLinha(item.disciplina));
         }
         
-        // Alunos de 3ª série (Duas escolhas: aparece em duas abas)
         if (item.terca) {
           const nomeTabTerca = `3EM - ${item.terca}`;
           if (!listasPorDisciplina[nomeTabTerca]) listasPorDisciplina[nomeTabTerca] = [];
@@ -118,36 +116,37 @@ const [times, setTimes] = useState({
         }
       });
 
-      // 2. Criar as abas ordenadas
+      // 2. Ordenação das Abas (Ordem Alfabética)
       const nomesDasAbas = Object.keys(listasPorDisciplina).sort();
 
       nomesDasAbas.forEach(nomeAba => {
-        // Ordenar os alunos desta aba por Nome Completo (A-Z)
+        // Ordenação dos Alunos dentro da aba (A-Z)
         const listaOrdenada = listasPorDisciplina[nomeAba].sort((a, b) => 
-          a['Nome Completo'].localeCompare(b['Nome Completo'])
+          a['NOME COMPLETO'].localeCompare(b['NOME COMPLETO'])
         );
 
         const worksheet = XLSX.utils.json_to_sheet(listaOrdenada);
         
-        // Ajuste de layout das colunas
+        // 3. Formatação de Negrito nos Títulos
+        // Percorre as células da primeira linha (A1, B1, C1...)
+        const range = XLSX.utils.decode_range(worksheet['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          const address = XLSX.utils.encode_col(C) + "1"; 
+          if (!worksheet[address]) continue;
+          worksheet[address].s = {
+            font: { bold: true }
+          };
+        }
+
+        // Ajuste de largura das colunas
         worksheet['!cols'] = [
-          { wch: 45 }, // Nome
-          { wch: 15 }, // Turma
-          { wch: 15 }, // Matrícula
-          { wch: 35 }, // Disciplina
-          { wch: 20 }  // Data
+          { wch: 45 }, { wch: 15 }, { wch: 15 }, { wch: 35 }, { wch: 20 }
         ];
 
-        // Limita o nome da aba a 31 caracteres (regra do Excel) e remove caracteres proibidos
-        const nomeLimpo = nomeAba
-.substring(0, 31)
-.replace(/[:\\\/\?\*\[\]]/g, "")
-.replace(/\s+/g, " ")
-.trim();
+        const nomeLimpo = nomeAba.substring(0, 31).replace(/[:\\\/\?\*\[\]]/g, "").trim();
         XLSX.utils.book_append_sheet(workbook, worksheet, nomeLimpo);
       });
 
-      // 3. Download do arquivo
       XLSX.writeFile(workbook, `Relatorio_Inscricoes_FIO_2026.xlsx`);
       setLoginError('Planilha exportada com sucesso!');
       
