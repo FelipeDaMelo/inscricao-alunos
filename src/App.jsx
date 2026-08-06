@@ -45,7 +45,7 @@ const App = () => {
       updateTime();
       timer = setInterval(updateTime, 1000);
 
-      // Fix #12: Re-check timer when tab returns from background (mobile)
+      // Fix #12: Re-check timer when tab returns from background
       handleVisibility = () => {
         if (document.visibilityState === 'visible') updateTime();
       };
