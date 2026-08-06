@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch, deleteField  } from 'firebase/firestore';
+import { collection, getDocs, serverTimestamp, query, where, doc, getDoc, runTransaction, setDoc, writeBatch, deleteField, onSnapshot, increment } from 'firebase/firestore';
 import { ALUNOS_2026 } from './alunos';
 import logo from './logo-marista.png';
 import { CheckCircle, AlertTriangle, LogIn, Send, Info, XCircle, Clock, Timer } from 'lucide-react';
@@ -26,6 +26,51 @@ const App = () => {
   const [contagemVagas, setContagemVagas] = useState({});
   const [carregandoVagas, setCarregandoVagas] = useState(true);
   
+  const [queueTicket, setQueueTicket] = useState(null);
+  const [queueTimeAllowed, setQueueTimeAllowed] = useState(null);
+  const [queueSecondsLeft, setQueueSecondsLeft] = useState(0);
+  const [queueRemaining, setQueueRemaining] = useState(0);
+
+  useEffect(() => {
+    let unsubCounter = () => {};
+    let timer = null;
+    let handleVisibility = null;
+
+    if (screen === 'queue' && queueTimeAllowed) {
+      const updateTime = () => {
+        const remaining = Math.max(0, Math.ceil((queueTimeAllowed - Date.now()) / 1000));
+        setQueueSecondsLeft(remaining);
+        if (remaining === 0) setScreen('form');
+      };
+      updateTime();
+      timer = setInterval(updateTime, 1000);
+
+      // Fix #12: Re-check timer when tab returns from background (mobile)
+      handleVisibility = () => {
+        if (document.visibilityState === 'visible') updateTime();
+      };
+      document.addEventListener('visibilitychange', handleVisibility);
+
+      const serieStr = userSerie?.toString();
+      if (serieStr) {
+        unsubCounter = onSnapshot(doc(db, 'estatisticas', `fila_counter_${serieStr}`), (s) => {
+          if (s.exists()) {
+            const serving = s.data().currentServingTicket || 30; // Default 30 inicial
+            if (queueTicket <= serving) {
+              setScreen('form');
+            }
+          }
+        });
+      }
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+      if (handleVisibility) document.removeEventListener('visibilitychange', handleVisibility);
+      unsubCounter();
+    };
+  }, [screen, queueTimeAllowed, queueTicket, userSerie]);
+
   // Estados para armazenar os nomes amigáveis para a tela de sucesso
   const [chosenDiscName, setChosenDiscName] = useState('');
   const [chosenTercaName, setChosenTercaName] = useState('');
@@ -33,45 +78,124 @@ const App = () => {
   const [detectedSerie, setDetectedSerie] = useState(null);
   const [historicoChoice, setHistoricoChoice] = useState(null);
   const botaoRef = useRef(null);
+  const submittingRef = useRef(false);
   const isTerceiraSerie = turma.startsWith('3');
 
   useEffect(() => {
-  if (matriculaLogin.length >= 6) {
-    const aluno = ALUNOS_2026.find(a => a.matricula.toString() === matriculaLogin);
-    if (aluno) setDetectedSerie(aluno.serie.toString());
-    else setDetectedSerie(null);
-  } else {
-    setDetectedSerie(null);
+    if (matriculaLogin.length >= 6) {
+      const aluno = ALUNOS_2026.find(a => a.matricula.toString() === matriculaLogin);
+      if (aluno) {
+        setDetectedSerie(aluno.serie.toString());
+      } else {
+        setDetectedSerie(null);
+      }
+    } else {
+      setDetectedSerie(null);
+    }
+  }, [matriculaLogin]);
+
+  const [configGlobal, setConfigGlobal] = useState(null);
+  
+  const [times, setTimes] = useState({
+    serie3: { d: 0, h: 0, m: 0, s: 0, open: false },
+    serie12: { d: 0, h: 0, m: 0, s: 0, open: false }
+  });
+
+  useEffect(() => {
+    let unsub = () => {};
+    if (screen === 'form') {
+      unsub = onSnapshot(doc(db, 'estatisticas', 'vagas'), (s) => {
+        if (s.exists()) setContagemVagas(s.data());
+        setCarregandoVagas(false);
+      });
+    }
+    return () => unsub();
+  }, [screen]);
+
+  useEffect(() => {
+    const selecionou = (!isTerceiraSerie && disciplina) || (isTerceiraSerie && (disciplinaTerca || disciplinaQuinta));
+    if (selecionou) {
+      setTimeout(() => botaoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+  }, [disciplina, disciplinaTerca, disciplinaQuinta, isTerceiraSerie]);
+
+  useEffect(() => {
+    if (!configGlobal || !configGlobal.OPENING_CONFIG) return;
+
+    const check = () => {
+      const agora = new Date().getTime();
+      const t3 = new Date(configGlobal.OPENING_CONFIG['3']).getTime();
+      const t12 = new Date(configGlobal.OPENING_CONFIG['1']).getTime();
+
+      const calc = (target) => {
+        const diff = target - agora;
+        if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, open: true };
+        return {
+          d: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+          s: Math.floor((diff % (1000 * 60)) / 1000),
+          open: false
+        };
+      };
+
+      setTimes({ serie3: calc(t3), serie12: calc(t12) });
+    };
+
+    check();
+    const timer = setInterval(check, 1000);
+    return () => clearInterval(timer);
+  }, [configGlobal]);
+
+  useEffect(() => {
+    const DEFAULT_CONFIG = {
+      USERS_PER_MINUTE: 30,
+      LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
+      disciplinasPorTurma: {
+        '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+        '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+        '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+        '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+        '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+        '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+        '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+        '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+        '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+      },
+      OPENING_CONFIG: {
+        '3': "2026-01-29T20:00:00-03:00",
+        '1': "2026-02-03T20:00:00-03:00",
+        '2': "2026-08-06T20:00:00-03:00"
+      }
+    };
+
+    getDoc(doc(db, 'configuracoes', 'geral')).then((docSnap) => {
+      if (docSnap.exists()) {
+        setConfigGlobal({ ...DEFAULT_CONFIG, ...docSnap.data() });
+      } else {
+        setConfigGlobal(DEFAULT_CONFIG);
+      }
+    });
+  }, []);
+
+  if (!configGlobal) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-sans">
+        <div className="animate-spin text-blue-600 mb-4"><Timer size={48} /></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Carregando portal...</p>
+      </div>
+    );
   }
-}, [matriculaLogin]);
 
   // --- CONFIGURAÇÕES ---
-  const LIMITES_POR_SERIE = { '1': 35, '2': 25, '3': 41 };
+  const USERS_PER_MINUTE = configGlobal.USERS_PER_MINUTE || 30; 
+  const SECONDS_PER_USER = 60 / USERS_PER_MINUTE; 
 
-  const disciplinasPorTurma = {
-    '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-    '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-    '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-    '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-    '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-    '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-    '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-    '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
-    '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
-  };
-
-  const OPENING_CONFIG = {
-  '3': "2026-01-29T20:00:00-03:00",
-  '1': "2026-02-03T20:00:00-03:00",
-  '2': "2026-02-03T20:00:00-03:00"
-};
+  const LIMITES_POR_SERIE = configGlobal.LIMITES_POR_SERIE;
+  const disciplinasPorTurma = configGlobal.disciplinasPorTurma;
+  const OPENING_CONFIG = configGlobal.OPENING_CONFIG;
 
 
-
-const [times, setTimes] = useState({
-  serie3: { d: 0, h: 0, m: 0, s: 0, open: false },
-  serie12: { d: 0, h: 0, m: 0, s: 0, open: false }
-});
 
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
@@ -161,12 +285,15 @@ const exportarParaExcel = async () => {
   // --- LÓGICA ---
 const handleLogin = async (e) => {
     e.preventDefault();
-    if (matriculaLogin === '0000') return setScreen('setup');
+    // Fix #10: Admin credentials via environment variables
+    const adminCode = import.meta.env.VITE_ADMIN_CODE;
+    const exportCode = import.meta.env.VITE_EXPORT_CODE;
+    if (adminCode && matriculaLogin === adminCode) return setScreen('setup');
     if (detectedSerie === '1') {
       setLoginError('A 1ª Série não participa deste processo...');
       return;
     }
-    if (matriculaLogin === '260189') {
+    if (exportCode && matriculaLogin === exportCode) {
       await exportarParaExcel();
       return;
     }
@@ -182,7 +309,23 @@ const handleLogin = async (e) => {
     try {
       const q = query(collection(db, 'inscricoes'), where('matricula', '==', matriculaLogin));
       const snap = await getDocs(q);
-      if (!snap.empty) throw new Error('Inscrição já realizada para esta matrícula.');
+      
+      if (!snap.empty) {
+        const inscricao = snap.docs[0].data();
+        setWelcomeName(inscricao.nome);
+        setTurma(inscricao.turma);
+        const serieLocal = inscricao.turma.charAt(0);
+        setUserSerie(serieLocal);
+        
+        if (serieLocal === '3') {
+           setChosenTercaName(inscricao.terca);
+           setChosenQuintaName(inscricao.quinta);
+        } else {
+           setChosenDiscName(inscricao.disciplina);
+        }
+        setScreen('success');
+        return;
+      }
 
       const docRef = doc(db, "matriculasValidas", matriculaLogin);
       const docSnap = await getDoc(docRef);
@@ -190,10 +333,58 @@ const handleLogin = async (e) => {
       if (docSnap.exists()) {
         const studentData = docSnap.data();
         setWelcomeName(studentData.nome);
+        setNomeCompleto(studentData.nome); // Auto-preenche para submissão
         setMatriculaValidada(matriculaLogin);
-        setUserSerie(studentData.serie.toString());
-        setHistoricoChoice(studentData.jaCursou || null); // ✅ Importante ter essa linha aqui
-        setScreen('form');
+        const serieStr = studentData.serie.toString();
+        setUserSerie(serieStr);
+        setHistoricoChoice(studentData.jaCursou || null);
+
+        // --- LÓGICA DA FILA ---
+        const counterRef = doc(db, 'estatisticas', `fila_counter_${serieStr}`);
+        
+        const horaAberturaMs = new Date(OPENING_CONFIG[serieStr]).getTime();
+
+        const myTicketInfo = await runTransaction(db, async (transaction) => {
+          const matDoc = await transaction.get(docRef);
+          if (matDoc.data().ticket !== undefined) {
+            return { ticket: matDoc.data().ticket, isNew: false, allowedTimeMs: matDoc.data().allowedTimeMs };
+          }
+          const cDoc = await transaction.get(counterRef);
+          const data = cDoc.exists() ? cDoc.data() : {};
+          const currentTicket = data.lastTicket || 0;
+          const newTicket = currentTicket + 1;
+          
+          const now = Date.now();
+          const lastScheduledTime = data.lastScheduledTime || horaAberturaMs;
+          
+          const baseTime = Math.max(now, lastScheduledTime, horaAberturaMs);
+          
+          const myAllowedTime = baseTime;
+          const nextAvailableSlot = baseTime + (SECONDS_PER_USER * 1000);
+
+          transaction.set(counterRef, { 
+            lastTicket: newTicket,
+            lastScheduledTime: nextAvailableSlot
+          }, { merge: true });
+          
+          transaction.update(docRef, { 
+            ticket: newTicket,
+            allowedTimeMs: myAllowedTime
+          });
+          
+          return { ticket: newTicket, isNew: true, allowedTimeMs: myAllowedTime };
+        });
+
+        setQueueTicket(myTicketInfo.ticket);
+        
+        const timeAllowedMs = myTicketInfo.allowedTimeMs || (horaAberturaMs + (myTicketInfo.ticket * SECONDS_PER_USER * 1000));
+        setQueueTimeAllowed(timeAllowedMs);
+
+        if (Date.now() >= timeAllowedMs) {
+           setScreen('form');
+        } else {
+           setScreen('queue');
+        }
       } else throw new Error('Matrícula não encontrada no sistema.');
     } catch (err) { setLoginError(err.message); } 
     finally { setLoginProcessing(false); }
@@ -201,26 +392,13 @@ const handleLogin = async (e) => {
 
 
 
-  useEffect(() => {
-    if (screen === 'form') {
-      getDoc(doc(db, 'estatisticas', 'vagas')).then(s => {
-        if (s.exists()) setContagemVagas(s.data());
-        setCarregandoVagas(false);
-      });
-    }
-  }, [screen]);
-
-  useEffect(() => {
-    const selecionou = (!isTerceiraSerie && disciplina) || (isTerceiraSerie && (disciplinaTerca || disciplinaQuinta));
-    if (selecionou) {
-      setTimeout(() => botaoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-    }
-  }, [disciplina, disciplinaTerca, disciplinaQuinta, isTerceiraSerie]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // ✅ GARANTIA: Força a série a ser string para buscar na config
+    // Fix #4: Synchronous double-click prevention via ref
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    
     const serieStr = userSerie.toString();
     const agora = new Date().getTime();
     const abertura = new Date(OPENING_CONFIG[serieStr]).getTime();
@@ -228,10 +406,11 @@ const handleLogin = async (e) => {
     if (agora < abertura) {
       setErro(true);
       setMensagem('O formulário ainda não está aberto para sua série.');
+      submittingRef.current = false;
       return;
     }
 
-    if (processando) return;
+    if (processando) { submittingRef.current = false; return; }
     setProcessando(true);
     setErro(false);
     const limite = getLimiteAtual();
@@ -241,11 +420,17 @@ const handleLogin = async (e) => {
       setErro(true);
       setMensagem('O nome não coincide com o cadastro. Verifique a grafia.');
       setProcessando(false);
+      submittingRef.current = false;
       return;
     }
 
     try {
       await runTransaction(db, async (transaction) => {
+        // Fix #5: Atomic check for existing enrollment using matricula as doc ID
+        const inscRef = doc(db, 'inscricoes', matriculaValidada);
+        const inscDoc = await transaction.get(inscRef);
+        if (inscDoc.exists()) throw new Error("Você já realizou sua inscrição anteriormente!");
+
         const vRef = doc(db, 'estatisticas', 'vagas');
         const vDoc = await transaction.get(vRef);
         const vData = vDoc.data();
@@ -256,8 +441,12 @@ const handleLogin = async (e) => {
         if (isTerceiraSerie) {
           if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas.");
           
-          const nomeT = disciplinasPorTurma[turma].terca.find(d => d.id === disciplinaTerca).nome;
-          const nomeQ = disciplinasPorTurma[turma].quinta.find(d => d.id === disciplinaQuinta).nome;
+          // Fix #1: Safe lookup with null-check to prevent TypeError crash
+          const discTerca = disciplinasPorTurma[turma]?.terca?.find(d => d.id === disciplinaTerca);
+          const discQuinta = disciplinasPorTurma[turma]?.quinta?.find(d => d.id === disciplinaQuinta);
+          if (!discTerca || !discQuinta) throw new Error("Disciplina não encontrada. Recarregue a página e tente novamente.");
+          const nomeT = discTerca.nome;
+          const nomeQ = discQuinta.nome;
           
           updates[disciplinaTerca] = (vData[disciplinaTerca] || 0) + 1;
           updates[disciplinaQuinta] = (vData[disciplinaQuinta] || 0) + 1;
@@ -269,7 +458,11 @@ const handleLogin = async (e) => {
         } else {
           if (vData[disciplina] >= limite) throw new Error("Vagas esgotadas.");
           
-          const nomeD = disciplinasPorTurma[turma].find(d => d.id === disciplina).nome;
+          // Fix #1: Safe lookup with null-check to prevent TypeError crash
+          const discArr = disciplinasPorTurma[turma];
+          const discObj = Array.isArray(discArr) ? discArr.find(d => d.id === disciplina) : null;
+          if (!discObj) throw new Error("Disciplina não encontrada. Recarregue a página e tente novamente.");
+          const nomeD = discObj.nome;
           
           updates[disciplina] = (vData[disciplina] || 0) + 1;
           dados.disciplina = nomeD;
@@ -277,23 +470,27 @@ const handleLogin = async (e) => {
         }
 
         transaction.update(vRef, updates);
-        transaction.set(doc(collection(db, 'inscricoes')), dados);
+        // Fix #5: Use matricula as doc ID for idempotent writes
+        transaction.set(inscRef, dados);
         const alunoRef = doc(db, "matriculasValidas", matriculaValidada);
-if (isTerceiraSerie) {
-  // Para 3ª série, salvamos as duas como um array ou string combinada
-  transaction.update(alunoRef, { jaCursou: [disciplinaTerca, disciplinaQuinta] });
-} else {
-  // Para 2ª série (foco do rodízio), salvamos o ID da disciplina
-  transaction.update(alunoRef, { jaCursou: disciplina });
-}
+        if (isTerceiraSerie) {
+          transaction.update(alunoRef, { jaCursou: [disciplinaTerca, disciplinaQuinta] });
+        } else {
+          transaction.update(alunoRef, { jaCursou: disciplina });
+        }
+        
+        // Fila Híbrida: Sai 1, Entra 1
+        const counterRef = doc(db, 'estatisticas', `fila_counter_${serieStr}`);
+        transaction.set(counterRef, { currentServingTicket: increment(1) }, { merge: true });
       });
       
-      setScreen('success'); // ✅ Muda para a página de sucesso
+      setScreen('success');
     } catch (e) { 
       setErro(true); 
       setMensagem(e.message); 
     } finally { 
-      setProcessando(false); 
+      setProcessando(false);
+      submittingRef.current = false;
     }
   };
 
@@ -302,9 +499,7 @@ if (isTerceiraSerie) {
   const lim = getLimiteAtual();
   const full = ocupadas >= lim;
 
-  // ✅ NOVA TRAVA DE HISTÓRICO:
-  // Verifica se o ID da disciplina atual está no histórico (seja string ou array)
-const jaFoiCursada = userSerie === '2' && (
+  const jaFoiCursada = userSerie === '2' && (
   Array.isArray(historicoChoice) 
     ? historicoChoice.includes(disc.id) 
     : historicoChoice === disc.id
@@ -318,35 +513,9 @@ const jaFoiCursada = userSerie === '2' && (
 }
 
 
-useEffect(() => {
-  const check = () => {
-    const agora = new Date().getTime();
-    const t3 = new Date(OPENING_CONFIG['3']).getTime();
-    const t12 = new Date(OPENING_CONFIG['1']).getTime(); // 1 e 2 são iguais
-
-    const calc = (target) => {
-      const diff = target - agora;
-      if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0, open: true };
-      return {
-        d: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        h: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        m: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-        s: Math.floor((diff % (1000 * 60)) / 1000),
-        open: false
-      };
-    };
-
-    setTimes({ serie3: calc(t3), serie12: calc(t12) });
-  };
-
-  check();
-  const timer = setInterval(check, 1000);
-  return () => clearInterval(timer);
-}, []);
-
 
 const getTurmasFiltradas = () => {
-  if (!userSerie) return []; // ✅ Se não tiver série, retorna lista vazia em vez de quebrar
+  if (!userSerie) return []; 
   return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
 };
 
@@ -356,7 +525,6 @@ const getTurmasFiltradas = () => {
         
         {screen === 'login' ? (
           <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center text-center">
-            {/* Coluna de Instruções */}
             <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
               <img src={logo} alt="Logo" className="mb-8 w-48 mx-auto" />
               <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Interdisciplinar Optativa</h1>
@@ -379,7 +547,6 @@ const getTurmasFiltradas = () => {
               </div>
             </div>
 
-            {/* Coluna de Login */}
             <div className="md:col-span-2 flex flex-col justify-center">
               <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100">
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso</h2>
@@ -395,9 +562,7 @@ const getTurmasFiltradas = () => {
     />
   </div>
 
-  {/* Grade de Cronômetros */}
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-    {/* Timer 3ª Série */}
     <div className={`p-4 rounded-2xl border ${times.serie3.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
       <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie3.open ? 'text-green-600' : 'text-blue-400'}`}>3ª Série</p>
       {times.serie3.open ? (
@@ -407,7 +572,6 @@ const getTurmasFiltradas = () => {
       )}
     </div>
 
-    {/* Timer 1ª e 2ª Séries */}
     <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
       <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Série</p>
       {times.serie12.open ? (
@@ -419,7 +583,6 @@ const getTurmasFiltradas = () => {
   </div>
 
 {detectedSerie === '1' ? (
-  // 🚩 MENSAGEM PARA A 1ª SÉRIE
   <div className="w-full bg-amber-50 border border-amber-200 p-6 rounded-2xl flex flex-col items-center gap-3 shadow-inner">
     <Info size={24} className="text-amber-600" />
     <p className="text-sm font-bold text-amber-900 leading-relaxed text-center">
@@ -432,7 +595,7 @@ const getTurmasFiltradas = () => {
       type="submit" disabled={loginProcessing}
       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
     >
-      <LogIn size={20} /> {loginProcessing ? 'VALIDANDO...' : 'ENTRAR NO FORMULÁRIO'}
+      <LogIn size={20} /> {loginProcessing ? 'VALIDANDO...' : 'ENTRAR NA FILA'}
     </button>
   ) : (
     <div className="text-slate-400 text-xs font-bold uppercase tracking-tighter animate-pulse italic">
@@ -447,8 +610,34 @@ const getTurmasFiltradas = () => {
           </div>
         ) : screen === 'setup' ? (
             <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
+        ) : screen === 'queue' ? (
+          <div className="w-full max-w-2xl animate-in fade-in zoom-in duration-500">
+            <header className="flex flex-col items-center mb-8">
+              <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
+            </header>
+            <main className="bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <Timer size={48} />
+              </div>
+              <h2 className="text-3xl font-black text-slate-800 mb-2">Você está na fila virtual</h2>
+              <p className="text-slate-500 mb-6 text-lg">Para evitar sobrecarga no sistema, liberamos o acesso gradativamente.</p>
+              
+              <div className="w-full bg-slate-50 rounded-2xl p-6 border border-slate-100 text-center mb-6">
+                <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Seu lugar na fila</p>
+                <p className="text-4xl font-black text-blue-600 mb-2">#{queueTicket}</p>
+                <p className="text-sm font-medium text-slate-600 mt-4">Tempo estimado de espera:</p>
+                <p className="text-3xl font-mono font-bold text-slate-800">
+                  {Math.floor(queueSecondsLeft / 60).toString().padStart(2, '0')}:{(queueSecondsLeft % 60).toString().padStart(2, '0')}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-3 rounded-xl text-sm font-bold w-full justify-center">
+                <AlertTriangle size={18} />
+                <span>NÃO ATUALIZE E NEM FECHE ESTA PÁGINA!</span>
+              </div>
+            </main>
+          </div>
         ) : screen === 'success' ? (
-          /* ✅ NOVA PÁGINA DE SUCESSO */
           <div className="w-full max-w-2xl animate-in fade-in zoom-in duration-500">
             <header className="flex flex-col items-center mb-8">
               <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
@@ -492,7 +681,6 @@ const getTurmasFiltradas = () => {
             </main>
           </div>
         ) : (
-          /* Tela do Formulário */
           <div className="w-full max-w-3xl">
             <header className="flex flex-col items-center mb-8">
               <img src={logo} alt="Logo" className="w-40 mb-4 mx-auto" />
@@ -510,14 +698,12 @@ const getTurmasFiltradas = () => {
                     <input type="text" value={matriculaValidada} disabled className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 font-mono text-center" />
                   </div>
                   <div className="flex flex-col items-center">
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Confirme seu Nome Completo</label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Aluno(a)</label>
                     <input 
                       type="text" 
                       value={nomeCompleto} 
-                      onChange={e => setNomeCompleto(e.target.value)}
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Nome completo"
-                      required 
+                      disabled
+                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-500 font-bold text-center"
                     />
                   </div>
                 </div>
@@ -607,10 +793,21 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     setLoading(false);
     setLoading(true);
     try {
-      const batch = writeBatch(db);
+      // Fix #7: Chunked batches to respect Firestore 500-op limit
+      const BATCH_LIMIT = 499;
+      const pendingBatches = [];
+      let batch = writeBatch(db);
+      let batchCount = 0;
+
       alunos.forEach((a) => {
         const ref = doc(db, "matriculasValidas", a.matricula.toString());
         batch.set(ref, a);
+        batchCount++;
+        if (batchCount >= BATCH_LIMIT) {
+          pendingBatches.push(batch.commit());
+          batch = writeBatch(db);
+          batchCount = 0;
+        }
       });
       const vagasRef = doc(db, "estatisticas", "vagas");
       batch.set(vagasRef, {
@@ -618,15 +815,46 @@ const SetupPage = ({ db, alunos, setScreen }) => {
         "Aprendizagem interativa STEAM : Criação, desenvolvimento e automação": 0, "Ciências Humanas_2EM": 0, "Ciências da Natureza_2EM": 0, "Personal Development and Life Skills English Program_2EM": 0,
         "Ciências da Natureza_TER_3EM": 0, "Ciências Humanas_TER_3EM": 0, "Matemática_QUI_3EM": 0, "Linguagens_QUI_3EM": 0
       });
-      await batch.commit();
+
+      // Reseta contadores da fila
+      const filaCounter2Ref = doc(db, "estatisticas", "fila_counter_2");
+      batch.set(filaCounter2Ref, { lastTicket: 0 });
+      const filaCounter3Ref = doc(db, "estatisticas", "fila_counter_3");
+      batch.set(filaCounter3Ref, { lastTicket: 0 });
+
+      // Salvar configuracoes padrao
+      const configRef = doc(db, "configuracoes", "geral");
+      batch.set(configRef, {
+        USERS_PER_MINUTE: 30,
+        LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
+        disciplinasPorTurma: {
+            '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+            '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+        },
+        OPENING_CONFIG: {
+            '3': "2026-01-29T20:00:00-03:00",
+            '1': "2026-02-03T20:00:00-03:00",
+            '2': "2026-08-06T20:00:00-03:00"
+        }
+      });
+
+      pendingBatches.push(batch.commit());
+      await Promise.all(pendingBatches);
       alert("Sucesso!");
       setScreen('login');
     } catch (e) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
- const prepararSegundoSemestre = async () => {
-    if (!window.confirm("ATENÇÃO: Isso apagará todas as INSCRIÇÕES e ZERARÁ as vagas, mas manterá o histórico (jaCursou). Use isso apenas APÓS gerar o Excel e antes de iniciar o 2º semestre. Continuar?")) return;
+  const zerarVagasMantendoHistorico = async () => {
+    if (!window.confirm("ATENÇÃO: Isso apagará todas as INSCRIÇÕES ATUAIS e ZERARÁ as vagas para zero, mas MANTERÁ INTACTO o histórico (jaCursou) de todos os alunos. Continuar?")) return;
 
     setLoading(true);
     try {
@@ -646,8 +874,16 @@ const SetupPage = ({ db, alunos, setScreen }) => {
         "Ciências da Natureza_TER_3EM": 0, "Ciências Humanas_TER_3EM": 0, "Matemática_QUI_3EM": 0, "Linguagens_QUI_3EM": 0
       });
 
+      // Reseta contadores da fila
+      const filaCounter1Ref = doc(db, "estatisticas", "fila_counter_1");
+      const filaCounter2Ref = doc(db, "estatisticas", "fila_counter_2");
+      const filaCounter3Ref = doc(db, "estatisticas", "fila_counter_3");
+      batch.set(filaCounter1Ref, { lastTicket: 0, currentServingTicket: 30 }, { merge: true });
+      batch.set(filaCounter2Ref, { lastTicket: 0, currentServingTicket: 30 }, { merge: true });
+      batch.set(filaCounter3Ref, { lastTicket: 0, currentServingTicket: 30 }, { merge: true });
+
       await batch.commit();
-      alert("Sistema pronto para o 2º Semestre! Histórico dos alunos preservado, mas inscrições resetadas.");
+      alert("Vagas abertas com sucesso! Histórico dos alunos (jaCursou) foi 100% preservado.");
     } catch (e) {
       alert("Erro: " + e.message);
     } finally {
@@ -712,26 +948,121 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     }
   };
 
+  const atualizarConfiguracoes = async () => {
+    if (!window.confirm("Isso vai APENAS enviar as regras de Horário, Vagas e Disciplinas para o banco, sem apagar nenhum dado de aluno ou de vaga existente. Continuar?")) return;
+    
+    setLoading(true);
+    try {
+      const configRef = doc(db, "configuracoes", "geral");
+      await setDoc(configRef, {
+        USERS_PER_MINUTE: 30,
+        LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
+        disciplinasPorTurma: {
+            '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
+            '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+            '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+            '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+        },
+        OPENING_CONFIG: {
+            '3': "2026-01-29T20:00:00-03:00",
+            '1': "2026-02-03T20:00:00-03:00",
+            '2': "2026-08-06T20:00:00-03:00"
+        }
+      });
+      alert("Configurações atualizadas com sucesso! Nenhum histórico ou vaga foi resetado.");
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao atualizar: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const criarCenarioTeste = async () => {
+    if (!window.confirm("Isso vai criar o Aluno Fake (999999) com histórico preenchido, avançar o relógio da 2ª série para AGORA e colocar 30 pessoas na frente dele na fila. Pronto para testar?")) return;
+    setLoading(true);
+    try {
+      const batch = writeBatch(db);
+      
+      // 1. Criar Aluno Fake
+      const fakeRef = doc(db, "matriculasValidas", "999999");
+      batch.set(fakeRef, {
+        nome: "ALUNO FAKE DE TESTE",
+        matricula: "999999",
+        serie: 2,
+        turma: "2AM",
+        jaCursou: "Ciências da Natureza_2EM", // Para testar bloqueio
+        ticket: deleteField() // Para pegar fila nova
+      }, { merge: true });
+
+      // 2. Apagar a possível inscrição anterior do fake se ele já testou antes
+      // Fazemos isso fora do batch porque precisamos buscar a inscrição primeiro
+      const q = query(collection(db, 'inscricoes'), where('matricula', '==', '999999'));
+      const snap = await getDocs(q);
+      snap.forEach(documento => batch.delete(documento.ref));
+
+      // 3. Empurrar o contador da fila da 2ª série para 30 (simulando 30 pessoas que já pegaram senha)
+      const filaRef = doc(db, "estatisticas", "fila_counter_2");
+      batch.set(filaRef, { lastTicket: 30, currentServingTicket: 30 }, { merge: true });
+
+      // 4. Abrir o portal daqui a exatamente 1 minuto no futuro para a 2ª Série
+      // Assim você pode ver o relógio zerar, fazer o login, pegar a fila e depois escolher.
+      const tempoFuturo = new Date(Date.now() + 60000).toISOString();
+      const configRef = doc(db, "configuracoes", "geral");
+      batch.set(configRef, {
+        OPENING_CONFIG: {
+          '2': tempoFuturo
+        }
+      }, { merge: true });
+
+      await batch.commit();
+      alert("Cenário Completo Criado! Aguarde o relógio zerar, digite a matrícula 999999 e faça o fluxo completo!");
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      alert("Erro no teste: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center gap-6">
       <div className="max-w-md flex flex-col items-center gap-4">
         <h1 className="text-4xl font-black mb-4">Painel de Setup</h1>
         
         {/* Botão de Reset Total (Original) */}
-        <button onClick={run} disabled={loading} className="w-full bg-red-600 hover:bg-red-700 p-6 rounded-2xl font-black text-xl shadow-xl transition-all disabled:opacity-50">
-          {loading ? "PROCESSANDO..." : "🚀 RESET TOTAL (TUDO)"}
+        <button onClick={run} disabled={loading} className="w-full bg-red-900 text-red-100 hover:bg-red-950 p-4 rounded-2xl font-black text-sm shadow-xl transition-all disabled:opacity-50 border-4 border-red-500">
+          {loading ? "PROCESSANDO..." : "⚠️ PERIGO: RESET TOTAL (APAGA ALUNOS E HISTÓRICO) ⚠️"}
         </button>
 
-        {/* Botão Novo Específico */}
+        {/* Botão de Atualizar Configs Sem Destruir Dados */}
+        <button onClick={atualizarConfiguracoes} disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 p-6 rounded-2xl font-black text-xl shadow-xl transition-all disabled:opacity-50">
+          {loading ? "PROCESSANDO..." : "🔧 ENVIAR SÓ CONFIGURAÇÕES (SEGURO)"}
+        </button>
+
+        {/* Botão para Abrir Vagas mantendo histórico */}
+        <button onClick={zerarVagasMantendoHistorico} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+          <Clock size={24} />
+          {loading ? "PROCESSANDO..." : "ABRIR VAGAS (Zerar inscrições mantendo Histórico)"}
+        </button>
+
+        {/* Botão para Limpar Histórico 2a Série */}
         <button onClick={limparHistorico2Serie} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
            <Timer size={24} />
            {loading ? "LIMPANDO..." : "LIMPAR HISTÓRICO APENAS 2ª SÉRIE"}
         </button>
 
-        <button onClick={prepararSegundoSemestre} disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-    <Clock size={24} />
-    {loading ? "PROCESSANDO..." : "PREPARAR P/ 2º SEMESTRE (AGOSTO)"}
-    </button>
+        {/* Botão de Teste Fake */}
+        <button onClick={criarCenarioTeste} disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-400">
+           🧪 {loading ? "CRIANDO LABORATÓRIO..." : "CRIAR CENÁRIO DE TESTE (FAKE)"}
+        </button>
 
         <button onClick={() => setScreen('login')} className="text-slate-400 underline mt-4">
           Voltar ao Login

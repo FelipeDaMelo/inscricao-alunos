@@ -1,4 +1,5 @@
 export const ALUNOS_2026 = [
+  { nome: 'ALUNO FAKE DE TESTE', matricula: '999999', serie: 2, turma: '2AM' },
   { "matricula": 10720180043, "nome": "ANA CAROLINA MACEDO DA SILVEIRA", "serie": 1 },
   { "matricula": 10720200063, "nome": "ANA CLARA PINHEIRO MESQUITA", "serie": 1 },
   { "matricula": 10720150088, "nome": "ANA JÚLIA CARDOSO BITTENCOURT", "serie": 1 },
@@ -225,6 +226,11 @@ export const ALUNOS_2026 = [
   { "matricula": 10720240099, "nome": "VALENTINA AYELEN OVIEDO CASAGRANDE", "serie": 2 },
   { "matricula": 10720230045, "nome": "VINICIUS GONÇALEZ DE ALMEIDA", "serie": 2 },
   { "matricula": 10720210108, "nome": "VITOR KEN BUOSO WATANABLE", "serie": 2 },
+  { "matricula": 10720260240, "nome": "GABRIELA SOARES MOREIRA FERREIRA", "serie": 2 },
+  { "matricula": 10720260248, "nome": "AMANNDA DE AZEVEDO LOPES MONTEIRO CASTELLARI", "serie": 2 },
+  { "matricula": 10720160020, "nome": "VINICIUS NEGRI SANDO DE OLIVEIRA", "serie": 2 },
+  { "matricula": 10720160028, "nome": "GUSTAVO MIGLIORINI", "serie": 2 },
+  { "matricula": 10720260252, "nome": "ALICE REIS POSTAL", "serie": 2 },
   { "matricula": 10720220150, "nome": "ANA CLARA DE TOLEDO CALIL", "serie": 3 },
   { "matricula": 10720150018, "nome": "ANA LUIZA BARBOSA DE ARAUJO", "serie": 3 },
   { "matricula": 10720110206, "nome": "ANA SOFIA SUSUKI SCHLIEMANN", "serie": 3 },
