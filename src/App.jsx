@@ -25,14 +25,14 @@ const App = () => {
   const [processando, setProcessando] = useState(false);
   const [contagemVagas, setContagemVagas] = useState({});
   const [carregandoVagas, setCarregandoVagas] = useState(true);
-  
+
   const [queueTicket, setQueueTicket] = useState(null);
   const [queueTimeAllowed, setQueueTimeAllowed] = useState(null);
   const [queueSecondsLeft, setQueueSecondsLeft] = useState(0);
   const [queueRemaining, setQueueRemaining] = useState(0);
 
   useEffect(() => {
-    let unsubCounter = () => {};
+    let unsubCounter = () => { };
     let timer = null;
     let handleVisibility = null;
 
@@ -95,14 +95,14 @@ const App = () => {
   }, [matriculaLogin]);
 
   const [configGlobal, setConfigGlobal] = useState(null);
-  
+
   const [times, setTimes] = useState({
     serie3: { d: 0, h: 0, m: 0, s: 0, open: false },
     serie12: { d: 0, h: 0, m: 0, s: 0, open: false }
   });
 
   useEffect(() => {
-    let unsub = () => {};
+    let unsub = () => { };
     if (screen === 'form') {
       unsub = onSnapshot(doc(db, 'estatisticas', 'vagas'), (s) => {
         if (s.exists()) setContagemVagas(s.data());
@@ -152,13 +152,13 @@ const App = () => {
       USERS_PER_MINUTE: 30,
       LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
       disciplinasPorTurma: {
-        '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-        '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-        '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-        '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-        '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-        '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-        '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
+        '1AM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+        '1BM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+        '1CM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+        '1DM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+        '2AM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+        '2BM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+        '2CM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
         '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
         '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
       },
@@ -188,8 +188,8 @@ const App = () => {
   }
 
   // --- CONFIGURAÇÕES ---
-  const USERS_PER_MINUTE = configGlobal.USERS_PER_MINUTE || 30; 
-  const SECONDS_PER_USER = 60 / USERS_PER_MINUTE; 
+  const USERS_PER_MINUTE = configGlobal.USERS_PER_MINUTE || 30;
+  const SECONDS_PER_USER = 60 / USERS_PER_MINUTE;
 
   const LIMITES_POR_SERIE = configGlobal.LIMITES_POR_SERIE;
   const disciplinasPorTurma = configGlobal.disciplinasPorTurma;
@@ -200,10 +200,10 @@ const App = () => {
   const getLimiteAtual = () => LIMITES_POR_SERIE[userSerie] || 35;
 
 
-const exportarParaExcel = async () => {
+  const exportarParaExcel = async () => {
     setLoginProcessing(true);
     setLoginError('Preparando abas e formatando dados...');
-    
+
     try {
       const querySnapshot = await getDocs(collection(db, 'inscricoes'));
       const dadosBrutos = querySnapshot.docs.map(doc => doc.data());
@@ -227,7 +227,7 @@ const exportarParaExcel = async () => {
           if (!listasPorDisciplina[item.disciplina]) listasPorDisciplina[item.disciplina] = [];
           listasPorDisciplina[item.disciplina].push(criarLinha(item.disciplina));
         }
-        
+
         if (item.terca) {
           const nomeTabTerca = `3EM - ${item.terca}`;
           if (!listasPorDisciplina[nomeTabTerca]) listasPorDisciplina[nomeTabTerca] = [];
@@ -245,17 +245,17 @@ const exportarParaExcel = async () => {
 
       nomesDasAbas.forEach(nomeAba => {
         // Ordenação dos Alunos dentro da aba (A-Z)
-        const listaOrdenada = listasPorDisciplina[nomeAba].sort((a, b) => 
+        const listaOrdenada = listasPorDisciplina[nomeAba].sort((a, b) =>
           a['NOME COMPLETO'].localeCompare(b['NOME COMPLETO'])
         );
 
         const worksheet = XLSX.utils.json_to_sheet(listaOrdenada);
-        
+
         // 3. Formatação de Negrito nos Títulos
         // Percorre as células da primeira linha (A1, B1, C1...)
         const range = XLSX.utils.decode_range(worksheet['!ref']);
         for (let C = range.s.c; C <= range.e.c; ++C) {
-          const address = XLSX.utils.encode_col(C) + "1"; 
+          const address = XLSX.utils.encode_col(C) + "1";
           if (!worksheet[address]) continue;
           worksheet[address].s = {
             font: { bold: true }
@@ -273,7 +273,7 @@ const exportarParaExcel = async () => {
 
       XLSX.writeFile(workbook, `Relatorio_Inscricoes_FIO_2026.xlsx`);
       setLoginError('Planilha exportada com sucesso!');
-      
+
     } catch (err) {
       setLoginError('Falha na exportação: ' + err.message);
     } finally {
@@ -283,7 +283,7 @@ const exportarParaExcel = async () => {
   };
 
   // --- LÓGICA ---
-const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     // Fix #10: Admin credentials via environment variables
     const adminCode = import.meta.env.VITE_ADMIN_CODE;
@@ -303,25 +303,25 @@ const handleLogin = async (e) => {
       setLoginError(`O portal para a ${detectedSerie}ª série ainda não está aberto.`);
       return;
     }
-    
+
     setLoginProcessing(true);
     setLoginError('');
     try {
       const q = query(collection(db, 'inscricoes'), where('matricula', '==', matriculaLogin));
       const snap = await getDocs(q);
-      
+
       if (!snap.empty) {
         const inscricao = snap.docs[0].data();
         setWelcomeName(inscricao.nome);
         setTurma(inscricao.turma);
         const serieLocal = inscricao.turma.charAt(0);
         setUserSerie(serieLocal);
-        
+
         if (serieLocal === '3') {
-           setChosenTercaName(inscricao.terca);
-           setChosenQuintaName(inscricao.quinta);
+          setChosenTercaName(inscricao.terca);
+          setChosenQuintaName(inscricao.quinta);
         } else {
-           setChosenDiscName(inscricao.disciplina);
+          setChosenDiscName(inscricao.disciplina);
         }
         setScreen('success');
         return;
@@ -341,7 +341,7 @@ const handleLogin = async (e) => {
 
         // --- LÓGICA DA FILA ---
         const counterRef = doc(db, 'estatisticas', `fila_counter_${serieStr}`);
-        
+
         const horaAberturaMs = new Date(OPENING_CONFIG[serieStr]).getTime();
 
         const myTicketInfo = await runTransaction(db, async (transaction) => {
@@ -353,52 +353,52 @@ const handleLogin = async (e) => {
           const data = cDoc.exists() ? cDoc.data() : {};
           const currentTicket = data.lastTicket || 0;
           const newTicket = currentTicket + 1;
-          
+
           const now = Date.now();
           const lastScheduledTime = data.lastScheduledTime || horaAberturaMs;
-          
+
           const baseTime = Math.max(now, lastScheduledTime, horaAberturaMs);
-          
+
           const myAllowedTime = baseTime;
           const nextAvailableSlot = baseTime + (SECONDS_PER_USER * 1000);
 
-          transaction.set(counterRef, { 
+          transaction.set(counterRef, {
             lastTicket: newTicket,
             lastScheduledTime: nextAvailableSlot
           }, { merge: true });
-          
-          transaction.update(docRef, { 
+
+          transaction.update(docRef, {
             ticket: newTicket,
             allowedTimeMs: myAllowedTime
           });
-          
+
           return { ticket: newTicket, isNew: true, allowedTimeMs: myAllowedTime };
         });
 
         setQueueTicket(myTicketInfo.ticket);
-        
+
         const timeAllowedMs = myTicketInfo.allowedTimeMs || (horaAberturaMs + (myTicketInfo.ticket * SECONDS_PER_USER * 1000));
         setQueueTimeAllowed(timeAllowedMs);
 
         if (Date.now() >= timeAllowedMs) {
-           setScreen('form');
+          setScreen('form');
         } else {
-           setScreen('queue');
+          setScreen('queue');
         }
       } else throw new Error('Matrícula não encontrada no sistema.');
-    } catch (err) { setLoginError(err.message); } 
+    } catch (err) { setLoginError(err.message); }
     finally { setLoginProcessing(false); }
-};
+  };
 
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Fix #4: Synchronous double-click prevention via ref
     if (submittingRef.current) return;
     submittingRef.current = true;
-    
+
     const serieStr = userSerie.toString();
     const agora = new Date().getTime();
     const abertura = new Date(OPENING_CONFIG[serieStr]).getTime();
@@ -440,30 +440,30 @@ const handleLogin = async (e) => {
 
         if (isTerceiraSerie) {
           if (vData[disciplinaTerca] >= limite || vData[disciplinaQuinta] >= limite) throw new Error("Vagas esgotadas.");
-          
+
           // Fix #1: Safe lookup with null-check to prevent TypeError crash
           const discTerca = disciplinasPorTurma[turma]?.terca?.find(d => d.id === disciplinaTerca);
           const discQuinta = disciplinasPorTurma[turma]?.quinta?.find(d => d.id === disciplinaQuinta);
           if (!discTerca || !discQuinta) throw new Error("Disciplina não encontrada. Recarregue a página e tente novamente.");
           const nomeT = discTerca.nome;
           const nomeQ = discQuinta.nome;
-          
+
           updates[disciplinaTerca] = (vData[disciplinaTerca] || 0) + 1;
           updates[disciplinaQuinta] = (vData[disciplinaQuinta] || 0) + 1;
           dados.terca = nomeT;
           dados.quinta = nomeQ;
-          
+
           setChosenTercaName(nomeT);
           setChosenQuintaName(nomeQ);
         } else {
           if (vData[disciplina] >= limite) throw new Error("Vagas esgotadas.");
-          
+
           // Fix #1: Safe lookup with null-check to prevent TypeError crash
           const discArr = disciplinasPorTurma[turma];
           const discObj = Array.isArray(discArr) ? discArr.find(d => d.id === disciplina) : null;
           if (!discObj) throw new Error("Disciplina não encontrada. Recarregue a página e tente novamente.");
           const nomeD = discObj.nome;
-          
+
           updates[disciplina] = (vData[disciplina] || 0) + 1;
           dados.disciplina = nomeD;
           setChosenDiscName(nomeD);
@@ -478,58 +478,58 @@ const handleLogin = async (e) => {
         } else {
           transaction.update(alunoRef, { jaCursou: disciplina });
         }
-        
+
         // Fila Híbrida: Sai 1, Entra 1
         const counterRef = doc(db, 'estatisticas', `fila_counter_${serieStr}`);
         transaction.set(counterRef, { currentServingTicket: increment(1) }, { merge: true });
       });
-      
+
       setScreen('success');
-    } catch (e) { 
-      setErro(true); 
-      setMensagem(e.message); 
-    } finally { 
+    } catch (e) {
+      setErro(true);
+      setMensagem(e.message);
+    } finally {
       setProcessando(false);
       submittingRef.current = false;
     }
   };
 
   function renderOption(disc) {
-  const ocupadas = contagemVagas[disc.id] || 0;
-  const lim = getLimiteAtual();
-  const full = ocupadas >= lim;
+    const ocupadas = contagemVagas[disc.id] || 0;
+    const lim = getLimiteAtual();
+    const full = ocupadas >= lim;
 
-  const jaFoiCursada = userSerie === '2' && (
-  Array.isArray(historicoChoice) 
-    ? historicoChoice.includes(disc.id) 
-    : historicoChoice === disc.id
-);
+    const jaFoiCursada = userSerie === '2' && (
+      Array.isArray(historicoChoice)
+        ? historicoChoice.includes(disc.id)
+        : historicoChoice === disc.id
+    );
 
-  return (
-    <option key={disc.id} value={disc.id} disabled={full || jaFoiCursada}>
-      {disc.nome} {jaFoiCursada ? ' (Indisponível: já cursada)' : full ? ' (Esgotado)' : `- ${lim - ocupadas} vagas`}
-    </option>
-  );
-}
+    return (
+      <option key={disc.id} value={disc.id} disabled={full || jaFoiCursada}>
+        {disc.nome} {jaFoiCursada ? ' (Indisponível: já cursada)' : full ? ' (Esgotado)' : `- ${lim - ocupadas} vagas`}
+      </option>
+    );
+  }
 
 
 
-const getTurmasFiltradas = () => {
-  if (!userSerie) return []; 
-  return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
-};
+  const getTurmasFiltradas = () => {
+    if (!userSerie) return [];
+    return Object.keys(disciplinasPorTurma).filter(t => t.startsWith(userSerie));
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-center">
       <div className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
-        
+
         {screen === 'login' ? (
           <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center text-center">
             <div className="md:col-span-3 bg-white shadow-2xl rounded-3xl p-8 md:p-12 border border-slate-100 flex flex-col items-center">
               <img src={logo} alt="Logo" className="mb-8 w-48 mx-auto" />
               <h1 className="text-3xl font-extrabold text-slate-800 mb-2">Inscrição Formação Interdisciplinar Optativa</h1>
-              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • 2026 / 1</p>
-              
+              <p className="text-blue-600 font-semibold mb-8">Ensino Médio • 2026 / 2</p>
+
               <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-xl w-full flex flex-col items-center">
                 <div className="flex items-center justify-center gap-2 text-blue-800 font-bold mb-4">
                   <Info size={20} />
@@ -551,65 +551,65 @@ const getTurmasFiltradas = () => {
               <div className="bg-white shadow-2xl rounded-3xl p-8 border border-slate-100">
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Acesso</h2>
                 <p className="text-slate-500 mb-8">Digite sua matrícula para iniciar.</p>
-               <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
-  <div className="w-full">
-    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
-    <input 
-      type="tel" value={matriculaLogin} onChange={e => setMatriculaLogin(e.target.value)}
-      placeholder="Digite sua matrícula"
-      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-      required 
-    />
-  </div>
+                <form onSubmit={handleLogin} className="space-y-6 w-full flex flex-col items-center">
+                  <div className="w-full">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Número de Matrícula</label>
+                    <input
+                      type="tel" value={matriculaLogin} onChange={e => setMatriculaLogin(e.target.value)}
+                      placeholder="Digite sua matrícula"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-lg text-center focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      required
+                    />
+                  </div>
 
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-    <div className={`p-4 rounded-2xl border ${times.serie3.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
-      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie3.open ? 'text-green-600' : 'text-blue-400'}`}>3ª Série</p>
-      {times.serie3.open ? (
-        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
-      ) : (
-        <div className="text-white font-mono text-lg font-black">{times.serie3.d}d {times.serie3.h}h {times.serie3.m}m {times.serie3.s}s</div>
-      )}
-    </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <div className={`p-4 rounded-2xl border ${times.serie3.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
+                      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie3.open ? 'text-green-600' : 'text-blue-400'}`}>3ª Série</p>
+                      {times.serie3.open ? (
+                        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14} /> LIBERADO</div>
+                      ) : (
+                        <div className="text-white font-mono text-lg font-black">{times.serie3.d}d {times.serie3.h}h {times.serie3.m}m {times.serie3.s}s</div>
+                      )}
+                    </div>
 
-    <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
-      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Série</p>
-      {times.serie12.open ? (
-        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14}/> LIBERADO</div>
-      ) : (
-        <div className="text-white font-mono text-lg font-black">{times.serie12.d}d {times.serie12.h}h {times.serie12.m}m {times.serie12.s}s</div>
-      )}
-    </div>
-  </div>
+                    <div className={`p-4 rounded-2xl border ${times.serie12.open ? 'bg-green-50 border-green-200' : 'bg-slate-900 border-slate-700'} text-center transition-colors`}>
+                      <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${times.serie12.open ? 'text-green-600' : 'text-blue-400'}`}>2ª Série</p>
+                      {times.serie12.open ? (
+                        <div className="text-green-700 font-bold text-sm flex items-center justify-center gap-1"><CheckCircle size={14} /> LIBERADO</div>
+                      ) : (
+                        <div className="text-white font-mono text-lg font-black">{times.serie12.d}d {times.serie12.h}h {times.serie12.m}m {times.serie12.s}s</div>
+                      )}
+                    </div>
+                  </div>
 
-{detectedSerie === '1' ? (
-  <div className="w-full bg-amber-50 border border-amber-200 p-6 rounded-2xl flex flex-col items-center gap-3 shadow-inner">
-    <Info size={24} className="text-amber-600" />
-    <p className="text-sm font-bold text-amber-900 leading-relaxed text-center">
-      A 1ª Série não participa desse processo de escolha. <br />
-      Converse com o prof. Felipe para informações.
-    </p>
-  </div>
-) : ((detectedSerie === '3' && times.serie3.open) || (detectedSerie === '2' && times.serie12.open)) ? (
-    <button 
-      type="submit" disabled={loginProcessing}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
-    >
-      <LogIn size={20} /> {loginProcessing ? 'VALIDANDO...' : 'ENTRAR NA FILA'}
-    </button>
-  ) : (
-    <div className="text-slate-400 text-xs font-bold uppercase tracking-tighter animate-pulse italic">
-       {detectedSerie ? `Aguardando abertura para a ${detectedSerie}ª série...` : "Digite sua matrícula para validar o acesso"}
-    </div>
-  )}
+                  {detectedSerie === '1' ? (
+                    <div className="w-full bg-amber-50 border border-amber-200 p-6 rounded-2xl flex flex-col items-center gap-3 shadow-inner">
+                      <Info size={24} className="text-amber-600" />
+                      <p className="text-sm font-bold text-amber-900 leading-relaxed text-center">
+                        A 1ª Série não participa desse processo de escolha. <br />
+                        Converse com o prof. Felipe para informações.
+                      </p>
+                    </div>
+                  ) : ((detectedSerie === '3' && times.serie3.open) || (detectedSerie === '2' && times.serie12.open)) ? (
+                    <button
+                      type="submit" disabled={loginProcessing}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+                    >
+                      <LogIn size={20} /> {loginProcessing ? 'VALIDANDO...' : 'ENTRAR NA FILA'}
+                    </button>
+                  ) : (
+                    <div className="text-slate-400 text-xs font-bold uppercase tracking-tighter animate-pulse italic">
+                      {detectedSerie ? `Aguardando abertura para a ${detectedSerie}ª série...` : "Digite sua matrícula para validar o acesso"}
+                    </div>
+                  )}
 
-  {loginError && <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full"><span>{loginError}</span></div>}
-</form>
+                  {loginError && <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full"><span>{loginError}</span></div>}
+                </form>
               </div>
             </div>
           </div>
         ) : screen === 'setup' ? (
-            <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
+          <SetupPage db={db} alunos={ALUNOS_2026} setScreen={setScreen} />
         ) : screen === 'queue' ? (
           <div className="w-full max-w-2xl animate-in fade-in zoom-in duration-500">
             <header className="flex flex-col items-center mb-8">
@@ -621,7 +621,7 @@ const getTurmasFiltradas = () => {
               </div>
               <h2 className="text-3xl font-black text-slate-800 mb-2">Você está na fila virtual</h2>
               <p className="text-slate-500 mb-6 text-lg">Para evitar sobrecarga no sistema, liberamos o acesso gradativamente.</p>
-              
+
               <div className="w-full bg-slate-50 rounded-2xl p-6 border border-slate-100 text-center mb-6">
                 <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Seu lugar na fila</p>
                 <p className="text-4xl font-black text-blue-600 mb-2">#{queueTicket}</p>
@@ -648,13 +648,13 @@ const getTurmasFiltradas = () => {
               </div>
               <h2 className="text-3xl font-black text-slate-800 mb-2">Inscrição Confirmada!</h2>
               <p className="text-slate-500 mb-8 text-lg">Parabéns, seu lugar está garantido.</p>
-              
+
               <div className="w-full bg-slate-50 rounded-2xl p-6 border border-slate-100 text-center mb-8">
                 <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Estudante</p>
                 <p className="text-xl font-bold text-slate-800 mb-4">{welcomeName}</p>
-                
+
                 <div className="h-px bg-slate-200 w-16 mx-auto mb-4"></div>
-                
+
                 <p className="text-slate-400 text-xs uppercase font-bold tracking-widest mb-1">Disciplina(s) Escolhida(s)</p>
                 {isTerceiraSerie ? (
                   <div className="space-y-2">
@@ -671,9 +671,9 @@ const getTurmasFiltradas = () => {
                 <Info size={16} />
                 <span>Você já pode fechar esta página com segurança.</span>
               </div>
-              
-              <button 
-                onClick={() => window.location.reload()} 
+
+              <button
+                onClick={() => window.location.reload()}
                 className="mt-8 text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
               >
                 Voltar ao Início
@@ -699,9 +699,9 @@ const getTurmasFiltradas = () => {
                   </div>
                   <div className="flex flex-col items-center">
                     <label className="block text-sm font-bold text-slate-700 mb-2">Aluno(a)</label>
-                    <input 
-                      type="text" 
-                      value={nomeCompleto} 
+                    <input
+                      type="text"
+                      value={nomeCompleto}
                       disabled
                       className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-500 font-bold text-center"
                     />
@@ -710,14 +710,14 @@ const getTurmasFiltradas = () => {
 
                 <div className="w-full flex flex-col items-center">
                   <label className="block text-sm font-bold text-slate-700 mb-2">Sua Turma</label>
-                  <select 
-                    value={turma} 
+                  <select
+                    value={turma}
                     onChange={e => { setTurma(e.target.value); setDisciplina(''); setDisciplinaTerca(''); setDisciplinaQuinta(''); }}
                     className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
                     required
                   >
                     <option value="">Selecione sua turma</option>
-                    
+
                     {getTurmasFiltradas().map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -728,7 +728,7 @@ const getTurmasFiltradas = () => {
                       <Info size={18} className="text-blue-600" />
                       Escolha sua(s) Disciplina(s)
                     </h3>
-                    
+
                     {isTerceiraSerie ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <div className="flex flex-col items-center">
@@ -757,21 +757,21 @@ const getTurmasFiltradas = () => {
                   </div>
                 )}
 
-<div ref={botaoRef} className="pt-4 w-full flex justify-center">
-  <button 
-    disabled={processando || !turma}
-    className="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 disabled:bg-slate-300"
-  >
-    <Send size={22} />
-    {processando ? 'ENVIANDO...' : 'FINALIZAR MINHA INSCRIÇÃO'}
-  </button>
-</div>
-                
+                <div ref={botaoRef} className="pt-4 w-full flex justify-center">
+                  <button
+                    disabled={processando || !turma}
+                    className="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 disabled:bg-slate-300"
+                  >
+                    <Send size={22} />
+                    {processando ? 'ENVIANDO...' : 'FINALIZAR MINHA INSCRIÇÃO'}
+                  </button>
+                </div>
+
                 {mensagem && erro && (
-                    <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
-                      <AlertTriangle size={16} />
-                      <span>{mensagem}</span>
-                    </div>
+                  <div className="flex items-center justify-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-xl w-full">
+                    <AlertTriangle size={16} />
+                    <span>{mensagem}</span>
+                  </div>
                 )}
               </form>
             </main>
@@ -828,20 +828,20 @@ const SetupPage = ({ db, alunos, setScreen }) => {
         USERS_PER_MINUTE: 30,
         LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
         disciplinasPorTurma: {
-            '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
-            '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+          '1AM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1BM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1CM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1DM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '2AM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '2BM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '2CM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+          '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
         },
         OPENING_CONFIG: {
-            '3': "2026-01-29T20:00:00-03:00",
-            '1': "2026-02-03T20:00:00-03:00",
-            '2': "2026-08-06T20:00:00-03:00"
+          '3': "2026-01-29T20:00:00-03:00",
+          '1': "2026-02-03T20:00:00-03:00",
+          '2': "2026-08-06T20:00:00-03:00"
         }
       });
 
@@ -849,7 +849,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
       await Promise.all(pendingBatches);
       alert("Sucesso!");
       setScreen('login');
-    } catch (e) { alert(e.message); } 
+    } catch (e) { alert(e.message); }
     finally { setLoading(false); }
   };
 
@@ -891,9 +891,9 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     }
   };
 
-   const limparHistorico2Serie = async () => {
+  const limparHistorico2Serie = async () => {
     if (!window.confirm("Isso vai apagar o campo 'jaCursou' de TODOS os alunos da 2ª SÉRIE. Confirma?")) return;
-    
+
     setLoading(true);
     try {
       // 1. Busca apenas alunos da série 2
@@ -915,10 +915,10 @@ const SetupPage = ({ db, alunos, setScreen }) => {
 
       querySnapshot.forEach((document) => {
         const docRef = doc(db, "matriculasValidas", document.id);
-        
+
         // Remove o campo jaCursou
         currentBatch.update(docRef, { jaCursou: deleteField() });
-        
+
         count++;
         totalUpdated++;
 
@@ -950,7 +950,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
 
   const atualizarConfiguracoes = async () => {
     if (!window.confirm("Isso vai APENAS enviar as regras de Horário, Vagas e Disciplinas para o banco, sem apagar nenhum dado de aluno ou de vaga existente. Continuar?")) return;
-    
+
     setLoading(true);
     try {
       const configRef = doc(db, "configuracoes", "geral");
@@ -958,20 +958,20 @@ const SetupPage = ({ db, alunos, setScreen }) => {
         USERS_PER_MINUTE: 30,
         LIMITES_POR_SERIE: { '1': 35, '2': 25, '3': 41 },
         disciplinasPorTurma: {
-            '1AM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1BM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1CM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '1DM': [ { id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' } ],
-            '2AM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '2BM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '2CM': [ { id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' } ],
-            '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
-            '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+          '1AM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1BM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1CM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '1DM': [{ id: 'Matemática Financeira_1EM', nome: 'Matemática Financeira' }, { id: 'Ciências da Natureza_1EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_1EM', nome: 'Ciências Humanas' }, { id: 'Personal Development and Life Skills English Program_1EM', nome: 'Inglês: Personal Development' }],
+          '2AM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '2BM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '2CM': [{ id: 'Aprendizagem interativa STEAM : Criação, desenvolvimento e automação', nome: 'STEAM: Aprendizagem Interativa' }, { id: 'Ciências Humanas_2EM', nome: 'Ciências Humanas' }, { id: 'Ciências da Natureza_2EM', nome: 'Ciências da Natureza' }, { id: 'Personal Development and Life Skills English Program_2EM', nome: 'Inglês: Personal Development' }],
+          '3AM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
+          '3BM': { terca: [{ id: 'Ciências da Natureza_TER_3EM', nome: 'Ciências da Natureza' }, { id: 'Ciências Humanas_TER_3EM', nome: 'Ciências Humanas' }], quinta: [{ id: 'Matemática_QUI_3EM', nome: 'Matemática' }, { id: 'Linguagens_QUI_3EM', nome: 'Linguagens' }] },
         },
         OPENING_CONFIG: {
-            '3': "2026-01-29T20:00:00-03:00",
-            '1': "2026-02-03T20:00:00-03:00",
-            '2': "2026-08-06T20:00:00-03:00"
+          '3': "2026-01-29T20:00:00-03:00",
+          '1': "2026-02-03T20:00:00-03:00",
+          '2': "2026-08-06T20:00:00-03:00"
         }
       });
       alert("Configurações atualizadas com sucesso! Nenhum histórico ou vaga foi resetado.");
@@ -989,7 +989,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     setLoading(true);
     try {
       const batch = writeBatch(db);
-      
+
       // 1. Criar Aluno Fake
       const fakeRef = doc(db, "matriculasValidas", "999999");
       batch.set(fakeRef, {
@@ -1036,7 +1036,7 @@ const SetupPage = ({ db, alunos, setScreen }) => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-6 text-center gap-6">
       <div className="max-w-md flex flex-col items-center gap-4">
         <h1 className="text-4xl font-black mb-4">Painel de Setup</h1>
-        
+
         {/* Botão de Reset Total (Original) */}
         <button onClick={run} disabled={loading} className="w-full bg-red-900 text-red-100 hover:bg-red-950 p-4 rounded-2xl font-black text-sm shadow-xl transition-all disabled:opacity-50 border-4 border-red-500">
           {loading ? "PROCESSANDO..." : "⚠️ PERIGO: RESET TOTAL (APAGA ALUNOS E HISTÓRICO) ⚠️"}
@@ -1055,13 +1055,13 @@ const SetupPage = ({ db, alunos, setScreen }) => {
 
         {/* Botão para Limpar Histórico 2a Série */}
         <button onClick={limparHistorico2Serie} disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-           <Timer size={24} />
-           {loading ? "LIMPANDO..." : "LIMPAR HISTÓRICO APENAS 2ª SÉRIE"}
+          <Timer size={24} />
+          {loading ? "LIMPANDO..." : "LIMPAR HISTÓRICO APENAS 2ª SÉRIE"}
         </button>
 
         {/* Botão de Teste Fake */}
         <button onClick={criarCenarioTeste} disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700 p-6 rounded-2xl font-bold text-lg shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 border border-purple-400">
-           🧪 {loading ? "CRIANDO LABORATÓRIO..." : "CRIAR CENÁRIO DE TESTE (FAKE)"}
+          🧪 {loading ? "CRIANDO LABORATÓRIO..." : "CRIAR CENÁRIO DE TESTE (FAKE)"}
         </button>
 
         <button onClick={() => setScreen('login')} className="text-slate-400 underline mt-4">
